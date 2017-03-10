@@ -1,0 +1,55 @@
+{
+    "name": "pip-services-logging",
+    "version": "1.0.0",
+    "author": "Digital Living Software Corp. <www.digitallivingsoftware.com>",
+    "description": "Distributed logging microservice",
+    "contributors": [
+        {
+            "name": "Sergey Seroukhov",
+            "email": "seroukhov@gmail.com"
+        }
+    ],
+    "main": "./lib/src/index.js",
+    "keywords": [
+        "pip.services", 
+        "logging",
+        "microservice"
+    ],
+    "noAnalyze": true,
+    "repository" : {
+        "type": "git",
+        "url": "ssh://git@github.com:pip-services/pip-services-logging-node.git"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=0.6.14"
+    },
+    "private": false,
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "launch": "node ./bin/run.js",
+        "relaunch": "tsc && node ./bin/run.js",
+        "test": "mocha -t 5000 -R spec -u tdd --recursive ./lib/test",
+        "retest": "tsc && mocha -t 5000 -R spec -u tdd --recursive ./lib/test",
+        "benchmark": "matcha -R clean -I tdd ./lib/benchmark/run.js",
+        "rebenchmark": "tsc && matcha -R clean -I tdd ./lib/benchmark/run.js"
+    },
+    "typescript": {
+        "definition": "index.d.ts"
+    },
+    "dependencies": {
+        "lodash": "*",
+        "async": "*",
+        "pip-services-runtime-node": "*"
+    },
+    "devDependencies": {
+        "mongoose": "*",
+        "seneca": "*",
+        "restify": "*",
+        "mocha": "*",
+        "chai": "*",
+        "matcha": "*",
+        "pip-services-test-node": "^1.0.0"
+    }
+}

@@ -2,5 +2,7 @@
 /node_modules
 /npm-debug.log
 /.idea
-/config/config.json
+/config/config.yaml
 /data/logging.test.json
+/data/logging.json
+/obj/test

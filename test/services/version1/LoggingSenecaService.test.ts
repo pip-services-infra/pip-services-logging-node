@@ -1,125 +1,120 @@
 let _ = require('lodash');
 let async = require('async');
+let assert = require('chai').assert;
 
-import { ComponentSet } from 'pip-services-runtime-node';
-import { ComponentConfig } from 'pip-services-runtime-node';
-import { SenecaAddon } from 'pip-services-runtime-node';
-import { DynamicMap } from 'pip-services-runtime-node';
-import { LifeCycleManager } from 'pip-services-runtime-node';
+import { Descriptor } from 'pip-services-commons-node';
+import { ConfigParams } from 'pip-services-commons-node';
+import { References } from 'pip-services-commons-node';
+import { ConsoleLogger } from 'pip-services-commons-node';
+import { FilterParams } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-commons-node';
+import { ErrorDescriptionFactory } from 'pip-services-commons-node';
+import { SenecaInstance } from 'pip-services-net-node';
 
-import { LoggingMongoDbPersistence} from '../../../src/persistence/LoggingMongoDbPersistence';
+import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
+import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../../../src/logic/LoggingController';
-import { LoggingSenecaService } from '../../../src/services/version1/LoggingSenecaService';
+import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSenecaServiceV1';
 
-let testFw = require('pip-services-test-node');
-let assert = testFw.assert;
 
-let options = new DynamicMap(require('../../../../config/config'));
-let dbOptions = new ComponentConfig(null, options.getMap('persistence'));
-
-let LOG_ENTRY1 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 1'
-};
-let LOG_ENTRY2 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 2'
-};
-let LOG_ENTRY3 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 3'
-};
-
-suite('LoggingSenecaService', ()=> {        
-    let db = new LoggingMongoDbPersistence();
-    db.configure(dbOptions);
-
-    let ctrl = new LoggingController();
-    ctrl.configure(new ComponentConfig());
-
-    let service = new LoggingSenecaService();
-    service.configure(new ComponentConfig());
-
-    let seneca = new SenecaAddon();
-    seneca.configure(new ComponentConfig());
-
-    let components = ComponentSet.fromComponents(db, ctrl, service, seneca);
+suite('LoggingSenecaServiceV1', ()=> {
+    let seneca: any;
+    let service: LoggingSenecaServiceV1;
+    let persistence: LoggingMemoryPersistence;
+    let controller: LoggingController;
 
     suiteSetup((done) => {
-        LifeCycleManager.linkAndOpen(components, done);
+        persistence = new LoggingMemoryPersistence();
+        controller = new LoggingController();
+
+        service = new LoggingSenecaServiceV1();
+        service.configure(ConfigParams.fromTuples(
+            "connection.protocol", "none"
+        ));
+
+        let logger = new ConsoleLogger();
+        let senecaAddon = new SenecaInstance();
+
+        let references: References = References.fromTuples(
+            new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
+            new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaAddon,
+            new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
+            new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
+            new Descriptor('pip-services-logging', 'service', 'commandable-seneca', 'default', '1.0'), service
+        );
+
+        controller.setReferences(references);
+        service.setReferences(references);
+
+        seneca = senecaAddon.getInstance();
+
+        service.open(null, done);
     });
     
     suiteTeardown((done) => {
-        seneca.close(() => {
-            LifeCycleManager.close(components, done);
-        });
+        service.close(null, done);
     });
     
     setup((done) => {
-        db.clearTestData(done);
+        persistence.clear(null, done);
     });
     
     test('CRUD Operations', (done) => {
-        async.series([
-        // Create two log entries
+         async.series([
             (callback) => {
-                seneca.getSeneca().act(
+                seneca.act(
                     {
-                        role: 'logs',
-                        cmd: 'write_logs',
-                        entries: [LOG_ENTRY1, LOG_ENTRY2]
+                        role: 'logging',
+                        cmd: 'write_message',
+                        message: new LogMessageV1(LogLevel.Info, null, "123", null, "AAA")
                     },
-                    (err, entries) => {
-                        assert.lengthOf(entries, 2);
-                        assert.result(err, entries[0]);
-                        assert.result(err, entries[1]);
-
-
-                        callback();
+                    (err, message) => {
+                        assert.isNull(err);
+                        assert.isObject(message);
+                        callback(err);
                     }
                 );
             },
-        // Create another log entry
             (callback) => {
-                seneca.getSeneca().act(
+                let message1 = new LogMessageV1(LogLevel.Debug, null, "123", null, "BBB");
+                let message2 = new LogMessageV1(LogLevel.Error, null, "123", ErrorDescriptionFactory.create(new Error()), "AAB");
+                message2.time = new Date(1975, 1, 1, 0, 0, 0, 0);
+
+                seneca.act(
                     {
-                        role: 'logs',
-                        cmd: 'write_logs',
-                        entries: [LOG_ENTRY3]
+                        role: 'logging',
+                        cmd: 'write_messages',
+                        messages: [message1, message2]
                     },
-                    (err, entries) => {
-                        assert.lengthOf(entries, 1);
-                        assert.result(err, entries[0]);
-
-                        let entry = entries[0];
-
-                        assert.equal(entry.server, LOG_ENTRY3.server);
-                        assert.equal(entry.level, LOG_ENTRY3.level);
-                        assert.equal(entry.component, LOG_ENTRY3.component);
-                        assert.equal(entry.message, LOG_ENTRY3.message);
-
-                        callback();
+                    (err) => {
+                        assert.isNull(err);
+                        callback(err);
                     }
                 );
             },
-        // Get all log entries
             (callback) => {
-                seneca.getSeneca().act(
+                seneca.act(
                     {
-                        role: 'logs',
-                        cmd: 'read_logs',
-                    },
-                    (err, entries) => {
-                        assert.result(err, entries);
-                        assert.lengthOf(entries.data, 3);
-
-                        callback();
+                        role: 'logging',
+                        cmd: 'read_messages',
+                        filter: FilterParams.fromTuples("search", "AA")
+                    }, 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 2);
+                        callback(err);
+                    }
+                );
+            },
+            (callback) => {
+                seneca.act(
+                    {
+                        role: 'logging',
+                        cmd: 'read_errors'
+                    }, 
+                    (err, page) => {
+                        assert.lengthOf(page.data, 1);
+                        callback(err);
                     }
                 );
             }

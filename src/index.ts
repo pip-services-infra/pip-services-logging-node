@@ -1,9 +1,7 @@
-// Clients package
-export { ILoggingClient } from './clients/version1/ILoggingClient';
-export { LoggingSenecaClient } from './clients/version1/LoggingSenecaClient';
+export * from './data/version1';
+export * from './persistence';
+export * from './logic';
+export * from './services/version1';
+export * from './build';
 
-// Build package
-export { LoggingFactory } from './build/LoggingFactory';
-
-//Loger package
-export { SenecaClientLogger } from './logs/SenecaClientLogger';
+//module.exports = require('./container/LoggingSenecaPlugin');

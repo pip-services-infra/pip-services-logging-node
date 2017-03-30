@@ -1,10 +1,16 @@
+import { DataPage } from 'pip-services-commons-node';
+import { FilterParams } from 'pip-services-commons-node';
+import { PagingParams } from 'pip-services-commons-node';
+import { ICleanable } from 'pip-services-commons-node';
 
-import { FilterParams } from 'pip-services-runtime-node';
-import { PagingParams } from 'pip-services-runtime-node';
-import { DataPage } from 'pip-services-runtime-node';
-import { IPersistence } from 'pip-services-runtime-node';
+import { LogMessageV1 } from '../data/version1/LogMessageV1';
 
-export interface ILoggingPersistence extends IPersistence {
-    readPersistedLog(correlationId: string, filter: FilterParams, paging: PagingParams, callback: (err: any, data: DataPage) => void): void;
-    writePersistedLog(correlationId: string, entries: any[], callback: (err: any, items: any[]) => void): void;
+export interface ILoggingPersistence extends ICleanable {
+    getPageByFilter(correlationId: string, filter: FilterParams, paging: PagingParams,
+        callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
+
+    create(correlationId: string, message: LogMessageV1,
+        callback?: (err: any, message: LogMessageV1) => void): void;
+    
+    clear(correlationId: string, callback?: (err: any) => void): void;
 }

@@ -1,9 +1,7 @@
-/**
- * @file Logging process runner
- * @copyright Digital Living Software Corp. 2014-2016
- */
+let LoggingProcess = require('../obj/src/container/LoggingProcess').LoggingProcess;
 
-var LoggingProcessRunner = require('../lib/src/run/LoggingProcessRunner').LoggingProcessRunner;
-
-var runner = new LoggingProcessRunner();
-runner.startWithDefaultConfig('./config/config.json');
+try {
+    new LoggingProcess().runWithArguments(process.argv);
+} catch (ex) {
+    console.error(ex);
+}

@@ -1,52 +1,82 @@
-import { CommandSet } from 'pip-services-runtime-node';
-import { ICommand } from 'pip-services-runtime-node';
-import { Command } from 'pip-services-runtime-node';
-import { Schema } from 'pip-services-runtime-node';
-import { DynamicMap } from 'pip-services-runtime-node';
-import { FilterParams } from 'pip-services-runtime-node';
-import { PagingParams } from 'pip-services-runtime-node';
+import { CommandSet } from 'pip-services-commons-node';
+import { ICommand } from 'pip-services-commons-node';
+import { Command } from 'pip-services-commons-node';
+import { Schema } from 'pip-services-commons-node';
+import { Parameters } from 'pip-services-commons-node';
+import { FilterParams } from 'pip-services-commons-node';
+import { PagingParams } from 'pip-services-commons-node';
 
+import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
 
 export class LoggingCommandSet extends CommandSet {
-    private _logic: ILoggingBusinessLogic;
+	private _logic: ILoggingBusinessLogic;
 
-    constructor(logic: ILoggingBusinessLogic) {
-        super();
+	constructor(logic: ILoggingBusinessLogic) {
+		super();
 
-        this._logic = logic;
+		this._logic = logic;
 
-        // Register commands to the database
-		this.addCommand(this.makeReadLogCommand());
-		this.addCommand(this.makeWriteLogCommand());
-    }
+		this.addCommand(this.makeReadMessagesCommand());
+		this.addCommand(this.makeReadErrorsCommand());
+		this.addCommand(this.makeWriteMessageCommand());
+		this.addCommand(this.makeWriteMessagesCommand());
+		this.addCommand(this.makeClearCommand());
+	}
 
-	private makeReadLogCommand(): ICommand {
+	private makeReadMessagesCommand(): ICommand {
 		return new Command(
-			this._logic,
-			"read_logs",
-			new Schema()
-				.withOptionalProperty("filter", "FilterParams")
-				.withOptionalProperty("paging", "PagingParams")
-			,
-            (correlationId: string, args: DynamicMap, callback: (err: any, result: any) => void) => {
-                let filter = FilterParams.fromValue(args.get("filter"));
-                let paging = PagingParams.fromValue(args.get("paging"));
-                this._logic.readPersistedLog(correlationId, filter, paging, callback);
-            }
+			"read_messages",
+			null,
+			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
+				let filter = FilterParams.fromValue(args.get("filter"));
+				let paging = PagingParams.fromValue(args.get("paging"));
+				this._logic.readMessages(correlationId, filter, paging, callback);
+			}
 		);
 	}
 
-	private makeWriteLogCommand(): ICommand {
+	private makeReadErrorsCommand(): ICommand {
 		return new Command(
-			this._logic,
-			"write_logs",
-			new Schema()
-				.withProperty("entries", "any[]"),
-            (correlationId: string, args: DynamicMap, callback: (err: any, result: any) => void) => {
-                let entries = args.get("entries");
-                this._logic.writePersistedLog(correlationId, entries, callback);
-            }
+			"read_errors",
+			null,
+			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
+				let filter = FilterParams.fromValue(args.get("filter"));
+				let paging = PagingParams.fromValue(args.get("paging"));
+				this._logic.readErrors(correlationId, filter, paging, callback);
+			}
+		);
+	}
+
+	private makeWriteMessageCommand(): ICommand {
+		return new Command(
+			"write_message",
+			null,
+			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
+				let message = args.get("message");
+				this._logic.writeMessage(correlationId, message, callback);
+			}
+		);
+	}
+
+	private makeWriteMessagesCommand(): ICommand {
+		return new Command(
+			"write_messages",
+			null,
+			(correlationId: string, args: Parameters, callback: (err: any) => void) => {
+				let messages = args.get("messages");
+				this._logic.writeMessages(correlationId, messages, callback);
+			}
+		);
+	}
+
+	private makeClearCommand(): ICommand {
+		return new Command(
+			"clear",
+			null,
+			(correlationId: string, args: Parameters, callback: (err: any) => void) => {
+				this._logic.clear(correlationId, callback);
+			}
 		);
 	}
 

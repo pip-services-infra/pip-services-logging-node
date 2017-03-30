@@ -1,0 +1,63 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+let async = require('async');
+const pip_services_commons_node_1 = require("pip-services-commons-node");
+const pip_services_commons_node_2 = require("pip-services-commons-node");
+const pip_services_commons_node_3 = require("pip-services-commons-node");
+const LoggingCommandSet_1 = require("./LoggingCommandSet");
+class LoggingController {
+    constructor() {
+        this._dependencyResolver = new pip_services_commons_node_2.DependencyResolver();
+        this._dependencyResolver.put('read_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
+        this._dependencyResolver.put('write_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
+    }
+    getCommandSet() {
+        if (this._commandSet == null)
+            this._commandSet = new LoggingCommandSet_1.LoggingCommandSet(this);
+        return this._commandSet;
+    }
+    configure(config) {
+        this._dependencyResolver.configure(config);
+    }
+    setReferences(references) {
+        this._dependencyResolver.setReferences(references);
+        this._readPersistence = this._dependencyResolver.getOneRequired('read_persistence');
+        this._writePersistence = this._dependencyResolver.getOptional('write_persistence');
+    }
+    writeMessage(correlationId, message, callback) {
+        async.each(this._writePersistence, (p, callback) => {
+            p.create(correlationId, message, callback);
+        }, (err) => {
+            if (callback)
+                callback(err, message);
+        });
+    }
+    writeMessages(correlationId, messages, callback) {
+        async.each(this._writePersistence, (p, callback) => {
+            async.each(messages, (m, callback) => {
+                p.create(correlationId, m, callback);
+            }, callback);
+        }, (err) => {
+            if (callback)
+                callback(err);
+        });
+    }
+    readMessages(correlationId, filter, paging, callback) {
+        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+    }
+    readErrors(correlationId, filter, paging, callback) {
+        filter = filter || new pip_services_commons_node_3.FilterParams();
+        filter.setAsObject('errors_only', true);
+        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+    }
+    clear(correlationId, callback) {
+        async.each(this._writePersistence, (p, callback) => {
+            p.clear(correlationId, callback);
+        }, (err) => {
+            if (callback)
+                callback(err);
+        });
+    }
+}
+exports.LoggingController = LoggingController;
+//# sourceMappingURL=LoggingController.js.map

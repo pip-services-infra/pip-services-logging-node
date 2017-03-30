@@ -1,90 +1,146 @@
 let async = require('async');
+let assert = require('chai').assert;
 
-let testFw = require('pip-services-test-node');
-let assert = testFw.assert;
+import { FilterParams } from 'pip-services-commons-node';
+import { PagingParams } from 'pip-services-commons-node';
+import { ErrorDescription } from 'pip-services-commons-node';
+import { ErrorDescriptionFactory } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-commons-node';
 
-import { FilterParams } from 'pip-services-runtime-node';
-import { PagingParams } from 'pip-services-runtime-node';
-
+import { LogMessageV1 } from '../../src/data/version1/LogMessageV1';
 import { ILoggingPersistence } from '../../src/persistence/ILoggingPersistence';
 
-let LOG_ENTRY1 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 1'
-};
-let LOG_ENTRY2 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 2'
-};
-let LOG_ENTRY3 = {
-    server: 'localhost',
-    level: 10,
-    component: 'Logging Test',
-    message: 'Message 3'
-};
-
 export class LoggingPersistenceFixture {
-    private _db: ILoggingPersistence;
+    private _persistence: ILoggingPersistence;
     
-    constructor(db) {
-        assert.isNotNull(db);
-        this._db = db;
+    constructor(persistence) {
+        assert.isNotNull(persistence);
+        this._persistence = persistence;
     }
-                
-    public testCrudOperations(done) {
+
+    public testCreateMessages(done) {
         async.series([
-        // Create one Log Entry
             (callback) => {
-                this._db.writePersistedLog(
-                    null,
-                    [LOG_ENTRY1, LOG_ENTRY2],
-                    (err, entries) => {
-                        assert.lengthOf(entries, 2);
-                        assert.result(err, entries[0]);
-                        assert.result(err, entries[1]);
-
-                        callback();
+                this._persistence.create(
+                    null, 
+                    new LogMessageV1(LogLevel.Info, null, "123", null, "AAA"), 
+                    (err, message) => {
+                        assert.isNull(err);
+                        assert.isObject(message);
+                        callback(err);
                     }
                 );
             },
-        // Create another Log Entry
             (callback) => {
-                this._db.writePersistedLog(
-                    null,
-                    [LOG_ENTRY3],
-                    (err, entries) => {
-                        assert.lengthOf(entries, 1);
-                        assert.result(err, entries[0]);
-
-                        let entry = entries[0];
-
-                        assert.equal(entry.server, LOG_ENTRY3.server);
-                        assert.equal(entry.level, LOG_ENTRY3.level);
-                        assert.equal(entry.component, LOG_ENTRY3.component);
-                        assert.equal(entry.message, LOG_ENTRY3.message);
-
-                        callback();
+                this._persistence.create(
+                    null, 
+                    new LogMessageV1(LogLevel.Debug, null, "123", null, "BBB"), 
+                    (err, message) => {
+                        assert.isNull(err);
+                        assert.isObject(message);
+                        callback(err);
                     }
                 );
             },
-        // Get all dummies
             (callback) => {
-                this._db.readPersistedLog(
-                    null,
-                    new FilterParams(),
-                    new PagingParams(),
-                    (err, entries) => {
-                        assert.result(err, entries);
-                        assert.lengthOf(entries.data, 3);
+                let message = new LogMessageV1(LogLevel.Error, null, "123", ErrorDescriptionFactory.create(new Error()), "AAB");
+                message.time = new Date(1975, 1, 1, 0, 0, 0, 0);
 
-                        callback();
+                this._persistence.create(
+                    null, 
+                    message, 
+                    (err, message) => {
+                        assert.isNull(err);
+                        assert.isObject(message);
+                        callback(err);
                     }
                 );
             }
         ], done);
+    }
+
+    public testReadWrite(done) {
+        let fromTime = new Date();
+
+        async.series([
+            (callback) => {
+                this.testCreateMessages(callback);
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("search", "AA"), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 2);
+                        callback(err);
+                    }
+                );
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("max_level", LogLevel.Info), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 2);
+                        callback(err);
+                    }
+                );
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("from_time", fromTime), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 2);
+                        callback(err);
+                    }
+                );
+            }
+        ], done);
+    }
+
+    public testSearch(done) {
+        async.series([
+            (callback) => {
+                this.testCreateMessages(callback);
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("search", "AA"), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 2);
+                        callback(err);
+                    }
+                );
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("search", "23"), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 3);
+                        callback(err);
+                    }
+                );
+            },
+            (callback) => {
+                this._persistence.getPageByFilter(
+                    null, 
+                    FilterParams.fromTuples("search", "rror"), 
+                    null,
+                    (err, page) => {
+                        assert.lengthOf(page.data, 1);
+                        callback(err);
+                    }
+                );
+            }
+        ], done);
+
     }
 }

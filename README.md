@@ -75,7 +75,7 @@ If you use Node.js then you should add dependency to the client SDK into **packa
 {
     dependencies: {
         ...
-        "pip-clients-logging-node": "^1.0.0"
+        "pip-clients-logging-node": "^1.0.*"
         ...
     }
 }

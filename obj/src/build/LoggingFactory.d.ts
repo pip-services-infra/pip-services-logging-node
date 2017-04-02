@@ -5,6 +5,6 @@ export declare class LoggingFactory extends Factory {
     static MemoryPersistenceDescriptor: Descriptor;
     static ControllerDescriptor: Descriptor;
     static SenecaServiceDescriptor: Descriptor;
-    static RestServiceDescriptor: Descriptor;
+    static HttpServiceDescriptor: Descriptor;
     constructor();
 }

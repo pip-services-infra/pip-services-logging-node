@@ -9,7 +9,7 @@
 
 - descriptor: "pip-services-logging:controller:default:default:1.0"
 
-- descriptor: "pip-services-logging:service:rest:default:1.0"
+- descriptor: "pip-services-logging:service:http:default:1.0"
   connection:
     protocol: "http"
     host: "0.0.0.0"

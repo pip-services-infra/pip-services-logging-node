@@ -59,16 +59,22 @@ See [Configuration Guide](Configuration.md) for details.
 var seneca = require('seneca')();
 
 var config = {
-    log: { level: 'debug' },
+    logger: { 
+        level: 'debug' 
+    },
     persistence: {
         type: 'memory'
     },
     service: {
-        type: 'none'
+        connection: {
+            protocol: 'none'
+        }
     }
 };
 
-seneca.use('pip-services-logging', config);
+var plugin = require('pip-services-logging-node').LoggingSenecaPlugin;
+
+seneca.use(plugin, config);
 ```
 
 You can use the microservice by calling seneca commands directly as described in [Seneca Protocol](SenecaProtocolV1.md)

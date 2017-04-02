@@ -13,7 +13,7 @@ import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
 import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../../../src/logic/LoggingController';
-import { LoggingRestServiceV1 } from '../../../src/services/version1/LoggingRestServiceV1';
+import { LoggingHttpServiceV1 } from '../../../src/services/version1/LoggingHttpServiceV1';
 
 let restConfig = ConfigParams.fromTuples(
     "connection.protocol", "http",
@@ -21,8 +21,8 @@ let restConfig = ConfigParams.fromTuples(
     "connection.port", 3000
 );
 
-suite('LoggingRestServiceV1', ()=> {
-    let service: LoggingRestServiceV1;
+suite('LoggingHttpServiceV1', ()=> {
+    let service: LoggingHttpServiceV1;
 
     let rest: any;
 
@@ -30,13 +30,13 @@ suite('LoggingRestServiceV1', ()=> {
         let persistence = new LoggingMemoryPersistence();
         let controller = new LoggingController();
 
-        service = new LoggingRestServiceV1();
+        service = new LoggingHttpServiceV1();
         service.configure(restConfig);
 
         let references: References = References.fromTuples(
             new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
-            new Descriptor('pip-services-logging', 'service', 'rest', 'default', '1.0'), service
+            new Descriptor('pip-services-logging', 'service', 'http', 'default', '1.0'), service
         );
         controller.setReferences(references);
         service.setReferences(references);

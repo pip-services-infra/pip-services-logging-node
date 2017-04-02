@@ -1,2 +1,2 @@
-export { LoggingRestServiceV1 } from './LoggingRestServiceV1';
+export { LoggingHttpServiceV1 } from './LoggingHttpServiceV1';
 export { LoggingSenecaServiceV1 } from './LoggingSenecaServiceV1';

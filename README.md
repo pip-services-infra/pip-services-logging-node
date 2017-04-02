@@ -20,7 +20,7 @@ This microservice has no dependencies on other microservices.
 * Client SDKs
   - [Node.js SDK](https://github.com/pip-services/pip-clients-logging-node)
 * Communication Protocols
-  - [HTTP/REST Version 1](doc/RestProtocolV1.md)
+  - [HTTP Version 1](doc/HttpProtocolV1.md)
   - [Seneca Version 1](doc/SenecaProtocolV1.md)
 
 ## Download
@@ -51,7 +51,7 @@ Example of microservice configuration
 
 - descriptor: "pip-services-logging:controller:default:default:1.0"
 
-- descriptor: "pip-services-logging:service:rest:default:1.0"
+- descriptor: "pip-services-logging:service:http:default:1.0"
   connection:
     protocol: "http"
     host: "0.0.0.0"
@@ -71,11 +71,14 @@ The easiest way to work with the microservice is to use client SDK.
 The complete list of available client SDKs for different languages is listed in the [Quick Links](#links)
 
 If you use Node.js then you should add dependency to the client SDK into **package.json** file of your project
-```yaml
-- descriptor: "pip-services-logging:client:rest:default:1.0"
-  connection:
-    protocol: "http"
-    ...
+```javascript
+{
+    dependencies: {
+        ...
+        "pip-clients-logging-node": "^1.0.0"
+        ...
+    }
+}
 ```
 
 Inside your code get the reference to the client SDK
@@ -98,7 +101,7 @@ var config = {
 Instantiate the client and open connection to the microservice
 ```javascript
 // Create the client instance
-var client = sdk.LoggingRestClientV1(config);
+var client = sdk.LoggingHttpClientV1(config);
 
 // Connect to the microservice
 client.open(null, function(err) {

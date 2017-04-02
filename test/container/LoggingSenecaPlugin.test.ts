@@ -2,17 +2,15 @@ let _ = require('lodash');
 let assert = require('chai').assert;
 
 let pluginOptions = {
-    'pip-services-logging': {
-        logs: {
-            level: 'debug'
-        },
-        persistence: {
-            type: 'memory'
-        },
-        services: {
-            connection: {
-                type: 'none'
-            }
+    logger: {
+        level: 'debug'
+    },
+    persistence: {
+        type: 'memory'
+    },
+    service: {
+        connection: {
+            protocol: 'none'
         }
     }
 };
@@ -21,11 +19,11 @@ suite('LoggingSenecaPlugin', ()=> {
     let seneca;
 
     suiteSetup((done) => {
-        seneca = require('seneca')();
+        seneca = require('seneca')({ strict: { result: false } });
 
         // Load Seneca plugin
         let plugin = require('../../src/container/LoggingSenecaPlugin');
-        seneca.use(plugin);
+        seneca.use(plugin, pluginOptions);
 
         seneca.ready(done);
     });
@@ -34,11 +32,11 @@ suite('LoggingSenecaPlugin', ()=> {
         seneca.close(done);
     });
 
-    test.skip('Ping', (done) => {
+    test('Ping', (done) => {
         seneca.act(
             {
                 role: 'logging',
-                cmd: 'get_messages' 
+                cmd: 'read_messages' 
             },
             (err, page) => {
                 assert.isNull(err);

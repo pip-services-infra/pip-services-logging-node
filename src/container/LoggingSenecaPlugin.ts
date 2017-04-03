@@ -4,6 +4,7 @@ import { ConfigParams } from 'pip-services-commons-node';
 import { ConsoleLogger } from 'pip-services-commons-node';
 import { ConfigException } from 'pip-services-commons-node';
 import { SenecaPlugin } from 'pip-services-net-node';
+import { SenecaInstance } from 'pip-services-net-node';
 
 import { LoggingMemoryPersistence } from '../persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../logic/LoggingController';
@@ -11,10 +12,10 @@ import { LoggingSenecaServiceV1 } from '../services/version1/LoggingSenecaServic
 
 export class LoggingSenecaPlugin extends SenecaPlugin {
     public constructor(seneca: any, options: any) {
-        super('pip-services-logging', seneca, LoggingSenecaPlugin.createReferences(options));
+        super('pip-services-logging', seneca, LoggingSenecaPlugin.createReferences(seneca, options));
     }
 
-    private static createReferences(options: any): References {
+    private static createReferences(seneca: any, options: any): References {
         options = options || {};
 
         let logger = new ConsoleLogger();
@@ -27,12 +28,15 @@ export class LoggingSenecaPlugin extends SenecaPlugin {
         let persistence = new LoggingMemoryPersistence();
         persistence.configure(ConfigParams.fromValue(persistenceOptions));
 
+        let senecaInstance = new SenecaInstance(seneca);
+
         let service = new LoggingSenecaServiceV1();
         let serviceOptions = options.service || {};
         service.configure(ConfigParams.fromValue(serviceOptions));
 
         return References.fromTuples(
             new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
+            new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaInstance,
             new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
             new Descriptor('pip-services-logging', 'service', 'seneca', 'default', '1.0'), service

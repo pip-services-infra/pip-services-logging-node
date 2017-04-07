@@ -17,8 +17,11 @@ This microservice has no dependencies on other microservices.
 * [Development Guide](doc/Development.md)
 * [Configuration Guide](doc/Configuration.md)
 * [Deployment Guide](doc/Deployment.md)
+* Implementations in other languages
+  - [Python](https://github.com/pip-services-infrastructure/pip-services-logging-python)
 * Client SDKs
-  - [Node.js SDK](https://github.com/pip-services/pip-clients-logging-node)
+  - [Node.js SDK](https://github.com/pip-services-infrastructure/pip-clients-logging-node)
+  - [Python SDK](https://github.com/pip-services-infrastructure/pip-clients-logging-python)
 * Communication Protocols
   - [HTTP Version 1](doc/HttpProtocolV1.md)
   - [Seneca Version 1](doc/SenecaProtocolV1.md)
@@ -35,7 +38,7 @@ as zip downloadable archieves.
 
 ## Run
 
-Add **config.json** file to the root of the microservice folder and set configuration parameters.
+Add **config.yaml** file to the root of the microservice folder and set configuration parameters.
 As the starting point you can use example configuration from **config.example.yaml** file. 
 
 Example of microservice configuration

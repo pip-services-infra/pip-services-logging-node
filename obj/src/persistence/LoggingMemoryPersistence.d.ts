@@ -1,9 +1,10 @@
 import { ConfigParams } from 'pip-services-commons-node';
+import { IConfigurable } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
 import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
-export declare class LoggingMemoryPersistence {
+export declare class LoggingMemoryPersistence implements IConfigurable {
     private _maxPageSize;
     private _maxErrorSize;
     private _maxTotalSize;

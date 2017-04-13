@@ -1,3 +1,5 @@
+let _ = require('lodash');
+
 import { CommandSet } from 'pip-services-commons-node';
 import { ICommand } from 'pip-services-commons-node';
 import { Command } from 'pip-services-commons-node';
@@ -5,8 +7,15 @@ import { Schema } from 'pip-services-commons-node';
 import { Parameters } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
 import { PagingParams } from 'pip-services-commons-node';
+import { ObjectSchema } from 'pip-services-commons-node';
+import { ArraySchema } from 'pip-services-commons-node';
+import { TypeCode } from 'pip-services-commons-node';
+import { FilterParamsSchema } from 'pip-services-commons-node';
+import { PagingParamsSchema } from 'pip-services-commons-node';
+import { DateTimeConverter } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
+import { LogMessageV1Schema } from '../data/version1/LogMessageV1Schema';
 import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
 
 export class LoggingCommandSet extends CommandSet {
@@ -27,7 +36,9 @@ export class LoggingCommandSet extends CommandSet {
 	private makeReadMessagesCommand(): ICommand {
 		return new Command(
 			"read_messages",
-			null,
+			new ObjectSchema(true)
+				.withOptionalProperty('fitler', new FilterParamsSchema())
+				.withOptionalProperty('paging', new PagingParamsSchema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let filter = FilterParams.fromValue(args.get("filter"));
 				let paging = PagingParams.fromValue(args.get("paging"));
@@ -39,7 +50,9 @@ export class LoggingCommandSet extends CommandSet {
 	private makeReadErrorsCommand(): ICommand {
 		return new Command(
 			"read_errors",
-			null,
+			new ObjectSchema(true)
+				.withOptionalProperty('fitler', new FilterParamsSchema())
+				.withOptionalProperty('paging', new PagingParamsSchema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let filter = FilterParams.fromValue(args.get("filter"));
 				let paging = PagingParams.fromValue(args.get("paging"));
@@ -51,9 +64,11 @@ export class LoggingCommandSet extends CommandSet {
 	private makeWriteMessageCommand(): ICommand {
 		return new Command(
 			"write_message",
-			null,
+			new ObjectSchema(true)
+				.withRequiredProperty('message', new LogMessageV1Schema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let message = args.get("message");
+				message.time = DateTimeConverter.toNullableDateTime(message.time);
 				this._logic.writeMessage(correlationId, message, callback);
 			}
 		);
@@ -62,9 +77,13 @@ export class LoggingCommandSet extends CommandSet {
 	private makeWriteMessagesCommand(): ICommand {
 		return new Command(
 			"write_messages",
-			null,
+			new ObjectSchema(true)
+				.withRequiredProperty('messages', new ArraySchema(new LogMessageV1Schema())),
 			(correlationId: string, args: Parameters, callback: (err: any) => void) => {
 				let messages = args.get("messages");
+				_.each(messages, (m) => {
+					m.time = DateTimeConverter.toNullableDateTime(m.time);
+				});
 				this._logic.writeMessages(correlationId, messages, callback);
 			}
 		);

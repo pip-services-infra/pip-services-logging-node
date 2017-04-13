@@ -9,60 +9,36 @@ import { ConsoleLogger } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
 import { LogLevel } from 'pip-services-commons-node';
 import { ErrorDescriptionFactory } from 'pip-services-commons-node';
-import { SenecaInstance } from 'pip-services-net-node';
 
-import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
-import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
-import { LoggingController } from '../../../src/logic/LoggingController';
-import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSenecaServiceV1';
+import { LogMessageV1 } from '../../src/data/version1/LogMessageV1';
+import { LoggingMemoryPersistence } from '../../src/persistence/LoggingMemoryPersistence';
+import { LoggingController } from '../../src/logic/LoggingController';
+import { LoggingLambdaFunction } from '../../src/container/LoggingLambdaFunction';
 
 
-suite('LoggingSenecaServiceV1', ()=> {
-    let seneca: any;
-    let service: LoggingSenecaServiceV1;
-    let persistence: LoggingMemoryPersistence;
-    let controller: LoggingController;
+suite('LoggingLambdaFunction', ()=> {
+    let lambda: LoggingLambdaFunction;
 
     suiteSetup((done) => {
-        persistence = new LoggingMemoryPersistence();
-        controller = new LoggingController();
-
-        service = new LoggingSenecaServiceV1();
-        service.configure(ConfigParams.fromTuples(
-            "connection.protocol", "none"
-        ));
-
-        let logger = new ConsoleLogger();
-        let senecaAddon = new SenecaInstance();
-
-        let references: References = References.fromTuples(
-            new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
-            new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaAddon,
-            new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
-            new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
-            new Descriptor('pip-services-logging', 'service', 'commandable-seneca', 'default', '1.0'), service
+        let config = ConfigParams.fromTuples(
+            'logger.descriptor', 'pip-services-commons:logger:console:default:1.0',
+            'persistence.descriptor', 'pip-services-logging:persistence:memory:default:1.0',
+            'controller.descriptor', 'pip-services-logging:controller:default:default:1.0'
         );
 
-        controller.setReferences(references);
-        service.setReferences(references);
-
-        seneca = senecaAddon.getInstance();
-
-        service.open(null, done);
+        lambda = new LoggingLambdaFunction();
+        lambda.configure(config);
+        lambda.open(null, done);
     });
     
     suiteTeardown((done) => {
-        service.close(null, done);
-    });
-    
-    setup((done) => {
-        persistence.clear(null, done);
+        lambda.close(null, done);
     });
     
     test('CRUD Operations', (done) => {
          async.series([
             (callback) => {
-                seneca.act(
+                lambda.act(
                     {
                         role: 'logging',
                         cmd: 'write_message',
@@ -80,7 +56,7 @@ suite('LoggingSenecaServiceV1', ()=> {
                 let message2 = new LogMessageV1(LogLevel.Error, null, "123", ErrorDescriptionFactory.create(new Error()), "AAB");
                 message2.time = new Date(1975, 1, 1, 0, 0, 0, 0);
 
-                seneca.act(
+                lambda.act(
                     {
                         role: 'logging',
                         cmd: 'write_messages',
@@ -93,7 +69,7 @@ suite('LoggingSenecaServiceV1', ()=> {
                 );
             },
             (callback) => {
-                seneca.act(
+                lambda.act(
                     {
                         role: 'logging',
                         cmd: 'read_messages',
@@ -106,7 +82,7 @@ suite('LoggingSenecaServiceV1', ()=> {
                 );
             },
             (callback) => {
-                seneca.act(
+                lambda.act(
                     {
                         role: 'logging',
                         cmd: 'read_errors'

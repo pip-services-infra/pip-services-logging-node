@@ -37,7 +37,7 @@ export class LoggingCommandSet extends CommandSet {
 		return new Command(
 			"read_messages",
 			new ObjectSchema(true)
-				.withOptionalProperty('fitler', new FilterParamsSchema())
+				.withOptionalProperty('filter', new FilterParamsSchema())
 				.withOptionalProperty('paging', new PagingParamsSchema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let filter = FilterParams.fromValue(args.get("filter"));
@@ -51,7 +51,7 @@ export class LoggingCommandSet extends CommandSet {
 		return new Command(
 			"read_errors",
 			new ObjectSchema(true)
-				.withOptionalProperty('fitler', new FilterParamsSchema())
+				.withOptionalProperty('filter', new FilterParamsSchema())
 				.withOptionalProperty('paging', new PagingParamsSchema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let filter = FilterParams.fromValue(args.get("filter"));

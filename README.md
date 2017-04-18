@@ -32,6 +32,16 @@ Logical contract of the microservice is presented below. For physical implementa
 please, refer to documentation of the specific protocol.
 
 ```typescript
+enum LogLevel {
+    None = 0,
+    Fatal,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace
+}
+
 class LogMessageV1 {	
 	public time: Date;
 	public source: string;

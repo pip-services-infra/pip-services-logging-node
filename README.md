@@ -26,6 +26,38 @@ This microservice has no dependencies on other microservices.
   - [HTTP Version 1](doc/HttpProtocolV1.md)
   - [Seneca Version 1](doc/SenecaProtocolV1.md)
 
+## Contract
+
+Logical contract of the microservice is presented below. For physical implementation (HTTP/REST, Thrift, Seneca, Lambda, etc.),
+please, refer to documentation of the specific protocol.
+
+```typescript
+class LogMessageV1 {	
+	public time: Date;
+	public source: string;
+	public level: LogLevel;
+	public correlation_id: string;
+	public error: ErrorDescription;
+	public message: string;
+}
+
+interface ILogging {
+    readMessages(correlationId: string, filter: FilterParams, paging: PagingParams,
+        callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
+
+    readErrors(correlationId: string, filter: FilterParams, paging: PagingParams,
+        callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
+
+    writeMessage(correlationId: string, message: LogMessageV1,
+        callback?: (err: any, message: LogMessageV1) => void): void;
+    
+    writeMessages(correlationId: string, messages: LogMessageV1[],
+        callback?: (err: any) => void): void;
+
+    clear(correlationId: string, callback?: (err: any) => void): void;
+}
+```
+
 ## Download
 
 Right now the only way to get the microservice is to check it out directly from github repository

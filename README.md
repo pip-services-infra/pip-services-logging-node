@@ -41,7 +41,7 @@ class LogMessageV1 {
 	public message: string;
 }
 
-interface ILogging {
+interface ILoggingV1 {
     readMessages(correlationId: string, filter: FilterParams, paging: PagingParams,
         callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
 

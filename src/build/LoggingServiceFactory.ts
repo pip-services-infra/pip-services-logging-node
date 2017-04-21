@@ -6,7 +6,7 @@ import { LoggingController } from '../logic/LoggingController';
 import { LoggingHttpServiceV1 } from '../services/version1/LoggingHttpServiceV1';
 import { LoggingSenecaServiceV1 } from '../services/version1/LoggingSenecaServiceV1'; 
 
-export class LoggingFactory extends Factory {
+export class LoggingServiceFactory extends Factory {
 	public static Descriptor = new Descriptor("pip-services-logging", "factory", "default", "default", "1.0");
 	public static MemoryPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence", "memory", "*", "1.0");
 	public static ControllerDescriptor = new Descriptor("pip-services-logging", "controller", "default", "*", "1.0");
@@ -15,10 +15,10 @@ export class LoggingFactory extends Factory {
 	
 	constructor() {
 		super();
-		this.registerAsType(LoggingFactory.MemoryPersistenceDescriptor, LoggingMemoryPersistence);
-		this.registerAsType(LoggingFactory.ControllerDescriptor, LoggingController);
-		this.registerAsType(LoggingFactory.SenecaServiceDescriptor, LoggingSenecaServiceV1);
-		this.registerAsType(LoggingFactory.HttpServiceDescriptor, LoggingHttpServiceV1);
+		this.registerAsType(LoggingServiceFactory.MemoryPersistenceDescriptor, LoggingMemoryPersistence);
+		this.registerAsType(LoggingServiceFactory.ControllerDescriptor, LoggingController);
+		this.registerAsType(LoggingServiceFactory.SenecaServiceDescriptor, LoggingSenecaServiceV1);
+		this.registerAsType(LoggingServiceFactory.HttpServiceDescriptor, LoggingHttpServiceV1);
 	}
 	
 }

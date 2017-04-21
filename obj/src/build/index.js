@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggingFactory_1 = require("./LoggingFactory");
-exports.LoggingFactory = LoggingFactory_1.LoggingFactory;
+var LoggingServiceFactory_1 = require("./LoggingServiceFactory");
+exports.LoggingServiceFactory = LoggingServiceFactory_1.LoggingServiceFactory;
 //# sourceMappingURL=index.js.map

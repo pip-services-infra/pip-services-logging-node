@@ -1,1 +1,1 @@
-export { LoggingFactory } from './LoggingFactory';
+export { LoggingServiceFactory } from './LoggingServiceFactory';

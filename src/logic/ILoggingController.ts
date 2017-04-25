@@ -5,7 +5,7 @@ import { ICleanable } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 
-export interface ILoggingBusinessLogic extends ICleanable {
+export interface ILoggingController extends ICleanable {
     readMessages(correlationId: string, filter: FilterParams, paging: PagingParams,
         callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
 

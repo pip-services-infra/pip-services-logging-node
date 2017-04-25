@@ -8,8 +8,8 @@ import { DataPage } from 'pip-services-commons-node';
 import { CommandSet } from 'pip-services-commons-node';
 import { ICommandable } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
-import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
-export declare class LoggingController implements ILoggingBusinessLogic, ICommandable, IConfigurable, IReferenceable {
+import { ILoggingController } from './ILoggingController';
+export declare class LoggingController implements ILoggingController, ICommandable, IConfigurable, IReferenceable {
     private _dependencyResolver;
     private _readPersistence;
     private _writePersistence;

@@ -1,2 +1,2 @@
-export { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
+export { ILoggingController } from './ILoggingController';
 export { LoggingController } from './LoggingController';

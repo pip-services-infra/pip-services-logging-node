@@ -16,12 +16,12 @@ import { DateTimeConverter } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { LogMessageV1Schema } from '../data/version1/LogMessageV1Schema';
-import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
+import { ILoggingController } from './ILoggingController';
 
 export class LoggingCommandSet extends CommandSet {
-	private _logic: ILoggingBusinessLogic;
+	private _logic: ILoggingController;
 
-	constructor(logic: ILoggingBusinessLogic) {
+	constructor(logic: ILoggingController) {
 		super();
 
 		this._logic = logic;

@@ -1,8 +1,8 @@
 import { CommandSet } from 'pip-services-commons-node';
-import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
+import { ILoggingController } from './ILoggingController';
 export declare class LoggingCommandSet extends CommandSet {
     private _logic;
-    constructor(logic: ILoggingBusinessLogic);
+    constructor(logic: ILoggingController);
     private makeReadMessagesCommand();
     private makeReadErrorsCommand();
     private makeWriteMessageCommand();

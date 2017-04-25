@@ -14,11 +14,11 @@ import { ICommandable } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from '../persistence/ILoggingPersistence';
-import { ILoggingBusinessLogic } from './ILoggingBusinessLogic';
+import { ILoggingController } from './ILoggingController';
 import { LoggingCommandSet } from './LoggingCommandSet';
 
 export class LoggingController 
-    implements ILoggingBusinessLogic, ICommandable, IConfigurable, IReferenceable {
+    implements ILoggingController, ICommandable, IConfigurable, IReferenceable {
     
     private _dependencyResolver: DependencyResolver;
 	private _readPersistence: ILoggingPersistence;

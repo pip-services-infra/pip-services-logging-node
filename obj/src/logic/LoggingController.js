@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let _ = require('lodash');
 let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
+const pip_services_commons_node_4 = require("pip-services-commons-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
@@ -25,6 +27,8 @@ class LoggingController {
         this._writePersistence = this._dependencyResolver.getOptional('write_persistence');
     }
     writeMessage(correlationId, message, callback) {
+        message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
+        message.time = message.time || new Date();
         async.each(this._writePersistence, (p, callback) => {
             p.create(correlationId, message, callback);
         }, (err) => {
@@ -33,6 +37,10 @@ class LoggingController {
         });
     }
     writeMessages(correlationId, messages, callback) {
+        _.each(messages, (message) => {
+            message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
+            message.time = message.time || new Date();
+        });
         async.each(this._writePersistence, (p, callback) => {
             async.each(messages, (m, callback) => {
                 p.create(correlationId, m, callback);

@@ -13,6 +13,7 @@ import { TypeCode } from 'pip-services-commons-node';
 import { FilterParamsSchema } from 'pip-services-commons-node';
 import { PagingParamsSchema } from 'pip-services-commons-node';
 import { DateTimeConverter } from 'pip-services-commons-node';
+import { LogLevelConverter } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { LogMessageV1Schema } from '../data/version1/LogMessageV1Schema';
@@ -68,6 +69,7 @@ export class LoggingCommandSet extends CommandSet {
 				.withRequiredProperty('message', new LogMessageV1Schema()),
 			(correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
 				let message = args.get("message");
+				message.level = LogLevelConverter.toLogLevel(message.level);
 				message.time = DateTimeConverter.toNullableDateTime(message.time);
 				this._logic.writeMessage(correlationId, message, callback);
 			}

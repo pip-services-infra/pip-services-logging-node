@@ -1,3 +1,4 @@
+let _ = require('lodash');
 let async = require('async');
 
 import { ConfigParams } from 'pip-services-commons-node';
@@ -11,6 +12,7 @@ import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
 import { CommandSet } from 'pip-services-commons-node';
 import { ICommandable } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from '../persistence/ILoggingPersistence';
@@ -49,6 +51,8 @@ export class LoggingController
 
     public writeMessage(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
+        message.level = message.level || LogLevel.Trace;
+        message.time = message.time || new Date();
         async.each(this._writePersistence, (p, callback) => {
             p.create(correlationId, message, callback);
         }, (err) => {
@@ -58,6 +62,12 @@ export class LoggingController
     
     public writeMessages(correlationId: string, messages: LogMessageV1[],
         callback?: (err: any) => void): void {
+
+        _.each(messages, (message) => {
+            message.level = message.level || LogLevel.Trace;
+            message.time = message.time || new Date();
+        });
+
         async.each(this._writePersistence, (p, callback) => {
             async.each(messages, (m, callback) => {
                 p.create(correlationId, m, callback);

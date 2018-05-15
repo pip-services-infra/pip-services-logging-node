@@ -12,6 +12,8 @@ branches:
 
 if: tag IS blank
 
+fail_fast: true
+
 before_install:
   - sed -i -e "s/\"build\":\s[0-9]*/\"build\":"' '"$TRAVIS_BUILD_NUMBER/" component.json
 

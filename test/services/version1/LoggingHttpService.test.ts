@@ -56,7 +56,7 @@ suite('LoggingHttpServiceV1', ()=> {
     test('CRUD Operations', (done) => {
          async.series([
             (callback) => {
-                rest.post('/logging/write_message',
+                rest.post('/v1/logging/write_message',
                     {
                         message: new LogMessageV1(LogLevel.Info, null, "123", null, "AAA")
                     },
@@ -72,7 +72,7 @@ suite('LoggingHttpServiceV1', ()=> {
                 let message2 = new LogMessageV1(LogLevel.Error, null, "123", ErrorDescriptionFactory.create(new Error()), "AAB");
                 message2.time = new Date(1975, 1, 1, 0, 0, 0, 0);
 
-                rest.post('/logging/write_messages',
+                rest.post('/v1/logging/write_messages',
                     {
                         messages: [message1, message2]
                     },
@@ -83,7 +83,7 @@ suite('LoggingHttpServiceV1', ()=> {
                 );
             },
             (callback) => {
-                rest.post('/logging/read_messages',
+                rest.post('/v1/logging/read_messages',
                     {
                         filter: FilterParams.fromTuples("search", "AA")
                     }, 
@@ -94,7 +94,7 @@ suite('LoggingHttpServiceV1', ()=> {
                 );
             },
             (callback) => {
-                rest.post('/logging/read_errors',
+                rest.post('/v1/logging/read_errors',
                     { }, 
                     (err, req, res, page) => {
                         assert.lengthOf(page.data, 1);

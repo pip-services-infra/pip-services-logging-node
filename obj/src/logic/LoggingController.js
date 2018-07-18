@@ -9,6 +9,7 @@ const pip_services_commons_node_4 = require("pip-services-commons-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
+        this._expireTimeout = 7; // 7 days
         this._dependencyResolver = new pip_services_commons_node_2.DependencyResolver();
         this._dependencyResolver.put('read_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
         this._dependencyResolver.put('write_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
@@ -65,6 +66,11 @@ class LoggingController {
             if (callback)
                 callback(err);
         });
+    }
+    deleteExpired(correlationId, callback) {
+        let now = new Date().getTime();
+        let expireTime = new Date(now - this._expireTimeout * 24 * 3600000);
+        this._readPersistence.deleteExpired(correlationId, expireTime, callback);
     }
 }
 exports.LoggingController = LoggingController;

@@ -47,7 +47,7 @@
 {{#if MONGO_ENABLED}}
 # MongoDB Persistence
 - descriptor: "pip-services-logging:persistence:mongodb:default:1.0"
-  collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}logging{{/unless}}
+  collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}logs{{/unless}}
   connection:
     uri: {{{MONGO_SERVICE_URI}}}
     host: {{{MONGO_SERVICE_HOST}}}{{#unless MONGO_SERVICE_HOST}}localhost{{/unless}}
@@ -84,7 +84,3 @@
 
 # Prometheus metrics service
 - descriptor: "pip-services:metrics-service:prometheus:default:1.0"
-  connection:
-    protocol: "http"
-    host: "0.0.0.0"
-    port: 8082

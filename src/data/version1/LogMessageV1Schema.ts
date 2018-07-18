@@ -10,6 +10,7 @@ export class LogMessageV1Schema extends ObjectSchema {
             .withOptionalProperty('message', TypeCode.String)
             .withOptionalProperty('stack_trace', TypeCode.String);
 
+        this.withOptionalProperty('id', TypeCode.String);
         this.withOptionalProperty('time', null); //TypeCode.DateTime);
         this.withOptionalProperty('correlation_id', TypeCode.String);
         this.withOptionalProperty('source', TypeCode.String);

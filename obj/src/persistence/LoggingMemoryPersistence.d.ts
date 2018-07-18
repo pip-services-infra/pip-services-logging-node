@@ -4,7 +4,8 @@ import { FilterParams } from 'pip-services-commons-node';
 import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
-export declare class LoggingMemoryPersistence implements IConfigurable {
+import { ILoggingPersistence } from './ILoggingPersistence';
+export declare class LoggingMemoryPersistence implements IConfigurable, ILoggingPersistence {
     private _maxPageSize;
     private _maxErrorSize;
     private _maxTotalSize;
@@ -19,4 +20,5 @@ export declare class LoggingMemoryPersistence implements IConfigurable {
     private insertMessage(message, messages);
     create(correlationId: string, message: LogMessageV1, callback?: (err: any, message: LogMessageV1) => void): void;
     clear(correlationId: string, callback?: (err: any) => void): void;
+    deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void;
 }

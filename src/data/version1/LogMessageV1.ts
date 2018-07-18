@@ -13,10 +13,11 @@ export class LogMessageV1 {
         this.message = message;
     }
 
+    public id: string;
 	public time: Date;
 	public source: string;
 	public level: LogLevel;
-	public correlation_id: string;
-	public error: ErrorDescription;
+	public correlation_id?: string;
+	public error?: ErrorDescription;
 	public message: string;
 }

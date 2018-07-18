@@ -6,8 +6,9 @@ import { DataPage } from 'pip-services-commons-node';
 import { LogLevel } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
+import { ILoggingPersistence } from './ILoggingPersistence';
 
-export class LoggingMemoryPersistence implements IConfigurable {
+export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersistence {
     private _maxPageSize: number = 100;
     private _maxErrorSize: number = 1000;
     private _maxTotalSize: number = 10000;

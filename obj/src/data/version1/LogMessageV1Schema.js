@@ -9,6 +9,7 @@ class LogMessageV1Schema extends pip_services_commons_node_1.ObjectSchema {
             .withOptionalProperty('code', pip_services_commons_node_2.TypeCode.String)
             .withOptionalProperty('message', pip_services_commons_node_2.TypeCode.String)
             .withOptionalProperty('stack_trace', pip_services_commons_node_2.TypeCode.String);
+        this.withOptionalProperty('id', pip_services_commons_node_2.TypeCode.String);
         this.withOptionalProperty('time', null); //TypeCode.DateTime);
         this.withOptionalProperty('correlation_id', pip_services_commons_node_2.TypeCode.String);
         this.withOptionalProperty('source', pip_services_commons_node_2.TypeCode.String);

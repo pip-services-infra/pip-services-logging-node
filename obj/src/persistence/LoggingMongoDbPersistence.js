@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let _ = require('lodash');
+let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_data_node_1 = require("pip-services-data-node");
@@ -7,6 +9,10 @@ const LoggingMongoDbSchema_1 = require("./LoggingMongoDbSchema");
 class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMongoDbPersistence {
     constructor() {
         super('logs', LoggingMongoDbSchema_1.LoggingMongoDbSchema());
+        this._errorCollection = "errors";
+        this._schemaError = LoggingMongoDbSchema_1.LoggingMongoDbSchema(this._errorCollection);
+        this._schemaError.set('collection', this._errorCollection);
+        this._modelError = this._connection.model(this._errorCollection, this._schemaError);
         this._maxPageSize = 1000;
     }
     composeFilter(filter) {
@@ -48,13 +54,42 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
     create(correlationId, message, callback) {
+        let id;
+        async.series([
+            (callback) => {
+                this.createLogs(correlationId, message, (err, message) => {
+                    if (!err)
+                        id = message.id;
+                    callback(err, message);
+                });
+            },
+            (callback) => {
+                // Add to error separately
+                if (message.level <= pip_services_commons_node_2.LogLevel.Error) {
+                    // Assign id
+                    let newMessage = _.omit(message, 'id');
+                    newMessage._id = id;
+                    this._modelError.create(newMessage, (err, newMessage) => {
+                        if (!err)
+                            this._logger.trace(correlationId, "Created in %s with id = %s", this._errorCollection, newMessage._id);
+                        newMessage = this.convertToPublic(newMessage);
+                        callback(err, newMessage);
+                    });
+                }
+                else {
+                    callback();
+                }
+            }
+        ], (err, result) => {
+            callback(err, result[0]);
+        });
+    }
+    createLogs(correlationId, message, callback) {
         super.create(correlationId, message, callback);
-        // Add to error separately
-        // if (message.level <= LogLevel.Error) {\
-        //     this._collection = "errors";
-        //     super.create(correlationId, message, callback);
-        //     this._collection = "logs"
-        // }
+    }
+    deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback) {
+        this.deleteByFilter(correlationId, pip_services_commons_node_1.FilterParams.fromTuples("to_time", expireLogsTime), null);
+        //  delete errors from errors collection
     }
 }
 exports.LoggingMongoDbPersistence = LoggingMongoDbPersistence;

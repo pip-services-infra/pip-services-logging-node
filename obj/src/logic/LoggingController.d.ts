@@ -14,6 +14,9 @@ export declare class LoggingController implements ILoggingController, ICommandab
     private _readPersistence;
     private _writePersistence;
     private _commandSet;
+    private _expireCleanupTimeout;
+    private _expireLogsTimeout;
+    private _expireErrorsTimeout;
     constructor();
     getCommandSet(): CommandSet;
     configure(config: ConfigParams): void;
@@ -23,4 +26,5 @@ export declare class LoggingController implements ILoggingController, ICommandab
     readMessages(correlationId: string, filter: FilterParams, paging: PagingParams, callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
     readErrors(correlationId: string, filter: FilterParams, paging: PagingParams, callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
     clear(correlationId: string, callback?: (err: any) => void): void;
+    deleteExpired(correlationId: string, callback: (err: any) => void): void;
 }

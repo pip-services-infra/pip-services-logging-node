@@ -1,4 +1,7 @@
-import { ConfigParams } from 'pip-services-commons-node';
+let _ = require('lodash');
+let async = require('async');
+
+import { ConfigParams, IdGenerator } from 'pip-services-commons-node';
 import { IConfigurable } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
 import { PagingParams } from 'pip-services-commons-node';
@@ -9,11 +12,22 @@ import { IdentifiableMongoDbPersistence } from 'pip-services-data-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
 import { LoggingMongoDbSchema } from './LoggingMongoDbSchema';
+import { callbackify } from 'util';
 
-export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string>  implements ILoggingPersistence {
+export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
+
+    private _errorCollection: string;
+    private _schemaError: any;
+    private _modelError: any;
+
 
     constructor() {
         super('logs', LoggingMongoDbSchema());
+        this._errorCollection = "errors";
+        this._schemaError = LoggingMongoDbSchema(this._errorCollection);
+        this._schemaError.set('collection', this._errorCollection);
+        this._modelError = this._connection.model(this._errorCollection, this._schemaError);
+
         this._maxPageSize = 1000;
     }
 
@@ -21,12 +35,12 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
         filter = filter || new FilterParams();
 
         let criteria = [];
-        
+
         let search = filter.getAsNullableString("search");
         if (search != null) {
             let searchRegex = new RegExp(search, "i");
             let searchCriteria = [];
-            
+
             searchCriteria.push({ message: { $regex: searchRegex } });
             searchCriteria.push({ correlation_id: { $regex: searchRegex } });
 
@@ -43,7 +57,7 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
 
         let maxLevel = filter.getAsNullableInteger("max_level");
         if (maxLevel != null)
-            criteria.push({ level: { $lte: maxLevel} });
+            criteria.push({ level: { $lte: maxLevel } });
 
         let fromTime = filter.getAsNullableDateTime("from_time");
         if (fromTime != null)
@@ -74,13 +88,47 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
 
     create(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
-            super.create(correlationId, message, callback);
-            // Add to error separately
-            // if (message.level <= LogLevel.Error) {\
-            //     this._collection = "errors";
-            //     super.create(correlationId, message, callback);
-            //     this._collection = "logs"
-            // }
-        }
+            let id: string;
+        async.series([
+            (callback) => {
+                this.createLogs(correlationId, message, (err: any, message: LogMessageV1) => {
+                    if (!err)
+                        id = message.id
+                    callback(err, message);
+                });
+            },
+            (callback) => {
+                // Add to error separately
+                if (message.level <= LogLevel.Error) {
+                    // Assign id
+                    let newMessage = _.omit(message, 'id');
+                    newMessage._id = id;
+                    this._modelError.create(newMessage, (err, newMessage) => {
+                        if (!err)
+                            this._logger.trace(correlationId, "Created in %s with id = %s", this._errorCollection, newMessage._id);
+                        newMessage = this.convertToPublic(newMessage);
+                        callback(err, newMessage);
+                    });
+                }
+                else {
+                    callback();
+                }
+            }
+        ], (err: any, result: LogMessageV1[]) => {
+            callback(err, result[0]);
+        });
+
+    }
+
+    createLogs(correlationId: string, message: LogMessageV1,
+        callback?: (err: any, message: LogMessageV1) => void): void {
+        super.create(correlationId, message, callback);
+    }
+
+    public deleteExpired(correlationId: string, expireLogsTime: Date, expireErrorsTime: Date,
+        callback: (err: any) => void): void {
+        this.deleteByFilter(correlationId, FilterParams.fromTuples("to_time", expireLogsTime), null);
+        //  delete errors from errors collection
+    }
 
 }

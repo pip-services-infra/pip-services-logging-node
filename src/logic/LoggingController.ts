@@ -26,6 +26,9 @@ export class LoggingController
 	private _readPersistence: ILoggingPersistence;
 	private _writePersistence: ILoggingPersistence[];
     private _commandSet: LoggingCommandSet;
+    private _expireCleanupTimeout: number = 1; // 1 day
+    private _expireLogsTimeout: number = 3; // 3 days
+    private _expireErrorsTimeout: number = 30; // 30 days
     
     constructor() {
         this._dependencyResolver = new DependencyResolver();
@@ -96,4 +99,13 @@ export class LoggingController
             if (callback) callback(err);
         });
     }
+
+    public deleteExpired(correlationId: string,
+        callback: (err: any) => void): void {
+        let now = new Date().getTime();
+        let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
+        let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
+        this._readPersistence.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
+    }
+
 }

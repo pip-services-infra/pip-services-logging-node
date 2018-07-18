@@ -140,4 +140,22 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
         if (callback) callback(null);
     }
 
+    public deleteExpired(correlationId: string, expireLogsTime: Date, expireErrorsTime: Date,
+        callback: (err: any) => void): void {
+
+        let originalLogsSize = this._messages.length;
+        let originalErrorsSize = this._messages.length;
+        this._messages = _.filter(this._messages, d => d.time.getTime() > expireLogsTime.getTime());
+        this._errors = _.filter(this._messages, d => d.time.getTime() > expireErrorsTime.getTime());
+        let deletedLogs = originalLogsSize - this._messages.length;
+        let deletedErrors = originalErrorsSize - this._errors.length;
+
+        if (deletedLogs > 0) {
+            //TODO: log and check
+            
+        } else {
+            if (callback) callback(null);
+        }
+    }
+
 }

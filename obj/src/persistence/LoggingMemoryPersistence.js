@@ -113,6 +113,21 @@ class LoggingMemoryPersistence {
         if (callback)
             callback(null);
     }
+    deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback) {
+        let originalLogsSize = this._messages.length;
+        let originalErrorsSize = this._messages.length;
+        this._messages = _.filter(this._messages, d => d.time.getTime() > expireLogsTime.getTime());
+        this._errors = _.filter(this._messages, d => d.time.getTime() > expireErrorsTime.getTime());
+        let deletedLogs = originalLogsSize - this._messages.length;
+        let deletedErrors = originalErrorsSize - this._errors.length;
+        if (deletedLogs > 0) {
+            //TODO: log and check
+        }
+        else {
+            if (callback)
+                callback(null);
+        }
+    }
 }
 exports.LoggingMemoryPersistence = LoggingMemoryPersistence;
 //# sourceMappingURL=LoggingMemoryPersistence.js.map

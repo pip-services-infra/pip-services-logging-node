@@ -9,5 +9,5 @@ export declare class LoggingMongoDbPersistence extends IdentifiableMongoDbPersis
     private composeFilter(filter);
     getPageByFilter(correlationId: string, filter: FilterParams, paging: PagingParams, callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
     deleteByFilter(correlationId: string, filter: FilterParams, callback: (err: any) => void): void;
-    deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void;
+    create(correlationId: string, message: LogMessageV1, callback?: (err: any, message: LogMessageV1) => void): void;
 }

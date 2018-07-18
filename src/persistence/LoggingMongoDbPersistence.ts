@@ -55,8 +55,8 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
 
         let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
         let errorLevel = LogLevel.Error
-        // if (errorsOnly != null)
-        //     criteria.push({ level: errorLevel });
+        if (errorsOnly)
+            criteria.push({ level: errorLevel });
 
         return criteria.length > 0 ? { $and: criteria } : null;
     }
@@ -71,4 +71,16 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
         callback: (err: any) => void): void {
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
+
+    create(correlationId: string, message: LogMessageV1,
+        callback?: (err: any, message: LogMessageV1) => void): void {
+            super.create(correlationId, message, callback);
+            // Add to error separately
+            // if (message.level <= LogLevel.Error) {\
+            //     this._collection = "errors";
+            //     super.create(correlationId, message, callback);
+            //     this._collection = "logs"
+            // }
+        }
+
 }

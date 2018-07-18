@@ -7,5 +7,4 @@ export interface ILoggingPersistence extends ICleanable {
     getPageByFilter(correlationId: string, filter: FilterParams, paging: PagingParams, callback: (err: any, page: DataPage<LogMessageV1>) => void): void;
     create(correlationId: string, message: LogMessageV1, callback?: (err: any, message: LogMessageV1) => void): void;
     clear(correlationId: string, callback?: (err: any) => void): void;
-    deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void;
 }

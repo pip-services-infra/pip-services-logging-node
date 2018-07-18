@@ -113,18 +113,6 @@ class LoggingMemoryPersistence {
         if (callback)
             callback(null);
     }
-    deleteExpired(correlationId, expireTime, callback) {
-        let originalSize = this._messages.length;
-        this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
-        let deleted = originalSize - this._messages.length;
-        if (deleted > 0) {
-            //TODO: log and check
-        }
-        else {
-            if (callback)
-                callback(null);
-        }
-    }
 }
 exports.LoggingMemoryPersistence = LoggingMemoryPersistence;
 //# sourceMappingURL=LoggingMemoryPersistence.js.map

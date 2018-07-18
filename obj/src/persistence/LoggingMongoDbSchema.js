@@ -43,7 +43,7 @@ exports.LoggingMongoDbSchema = function (collection) {
             return ret;
         }
     });
-    LoggingSchema.index({ source: 1, logLevel: 1, time: -1 });
+    LoggingSchema.index({ source: 1, level: 1, time: -1 });
     return LoggingSchema;
 };
 //# sourceMappingURL=LoggingMongoDbSchema.js.map

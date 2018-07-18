@@ -52,7 +52,7 @@ export let LoggingMongoDbSchema = function(collection?: string) {
         }
     });
 
-    LoggingSchema.index({ source: 1, logLevel: 1, time: -1 });
+    LoggingSchema.index({ source: 1, level: 1, time: -1 });
 
     return LoggingSchema;
 }

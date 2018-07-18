@@ -16,18 +16,6 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
         if (search != null) {
             let searchRegex = new RegExp(search, "i");
             let searchCriteria = [];
-            // if (this.matchString(message.message, search))
-            // return true;
-            // if (this.matchString(message.correlation_id, search))
-            //     return true;
-            // if (message.error != null) {
-            //     if (this.matchString(message.error.message, search))
-            //         return true;
-            //     if (this.matchString(message.error.stack_trace, search))
-            //         return true;
-            //     if (this.matchString(message.error.code, search))
-            //         return true;
-            // }
             searchCriteria.push({ message: { $regex: searchRegex } });
             searchCriteria.push({ correlation_id: { $regex: searchRegex } });
             searchCriteria.push({ "error.message": { $regex: searchRegex } });
@@ -49,25 +37,23 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
             criteria.push({ time: { $lt: toTime } });
         let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
         let errorLevel = pip_services_commons_node_2.LogLevel.Error;
-        // if (errorsOnly != null)
-        //     criteria.push({ level: errorLevel });
+        if (errorsOnly)
+            criteria.push({ level: errorLevel });
         return criteria.length > 0 ? { $and: criteria } : null;
     }
     getPageByFilter(correlationId, filter, paging, callback) {
         super.getPageByFilter(correlationId, this.composeFilter(filter), paging, null, null, callback);
-        // super.getPageByFilter(correlationId, filter, paging, null, null, callback);
     }
     deleteByFilter(correlationId, filter, callback) {
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
-    deleteExpired(correlationId, expireTime, callback) {
-        // let originalSize = this._messages.length;
-        // this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
-        // let deleted = originalSize - this._messages.length;
-        // if (deleted > 0) {
-        //     //TODO: log and check
-        // } else {
-        //     if (callback) callback(null);
+    create(correlationId, message, callback) {
+        super.create(correlationId, message, callback);
+        // Add to error separately
+        // if (message.level <= LogLevel.Error) {\
+        //     this._collection = "errors";
+        //     super.create(correlationId, message, callback);
+        //     this._collection = "logs"
         // }
     }
 }

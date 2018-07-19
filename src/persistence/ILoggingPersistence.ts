@@ -11,7 +11,10 @@ export interface ILoggingPersistence extends ICleanable {
 
     addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void;
-    
+
+    addBatch(correlationId: string, messages: LogMessageV1[],
+        callback: (err: any) => void): void;
+
     clear(correlationId: string, callback?: (err: any) => void): void;
 
     deleteExpired(correlationId: string, expireLogsTime: Date,

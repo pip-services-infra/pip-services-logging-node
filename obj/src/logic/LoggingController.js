@@ -15,6 +15,22 @@ class LoggingController {
         this._dependencyResolver = new pip_services_commons_node_2.DependencyResolver();
         this._dependencyResolver.put('read_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
         this._dependencyResolver.put('write_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
+        this.deleteExpired("logs", null);
+    }
+    deleteExpired(correlationId, callback) {
+        setTimeout(() => {
+            let now = new Date().getTime();
+            let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
+            let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
+            async.each(this._writePersistence, (p, callback) => {
+                p.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
+            }, (err) => {
+                if (callback)
+                    callback(err);
+            });
+            console.log('Expired logs and errors cleared');
+            this.deleteExpired(correlationId, callback);
+        }, 1000 * 60 * 60 * 24 * this._expireCleanupTimeout); // ms
     }
     getCommandSet() {
         if (this._commandSet == null)
@@ -33,21 +49,24 @@ class LoggingController {
         message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
         message.time = message.time || new Date();
         async.each(this._writePersistence, (p, callback) => {
-            p.create(correlationId, message, callback);
+            p.addOne(correlationId, message, callback);
         }, (err) => {
             if (callback)
                 callback(err, message);
         });
     }
     writeMessages(correlationId, messages, callback) {
+        if (messages == null || messages.length == 0) {
+            if (callback)
+                callback(null);
+            return;
+        }
         _.each(messages, (message) => {
             message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
             message.time = message.time || new Date();
         });
         async.each(this._writePersistence, (p, callback) => {
-            async.each(messages, (m, callback) => {
-                p.create(correlationId, m, callback);
-            }, callback);
+            p.addBatch(correlationId, messages, callback);
         }, (err) => {
             if (callback)
                 callback(err);
@@ -68,12 +87,6 @@ class LoggingController {
             if (callback)
                 callback(err);
         });
-    }
-    deleteExpired(correlationId, callback) {
-        let now = new Date().getTime();
-        let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
-        let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
-        this._readPersistence.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
     }
 }
 exports.LoggingController = LoggingController;

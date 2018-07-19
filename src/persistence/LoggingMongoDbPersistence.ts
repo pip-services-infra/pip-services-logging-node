@@ -17,16 +17,16 @@ import { callbackify } from 'util';
 export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
 
     private _errorCollection: string;
-    private _schemaError: any;
-    private _modelError: any;
-
+    private _errorSchema: any;
+    private _errorModel: any;
 
     constructor() {
         super('logs', LoggingMongoDbSchema());
+
         this._errorCollection = "errors";
-        this._schemaError = LoggingMongoDbSchema(this._errorCollection);
-        this._schemaError.set('collection', this._errorCollection);
-        this._modelError = this._connection.model(this._errorCollection, this._schemaError);
+        this._errorSchema = LoggingMongoDbSchema(this._errorCollection);
+        this._errorSchema.set('collection', this._errorCollection);
+        this._errorModel = this._connection.model(this._errorCollection, this._errorSchema);
 
         this._maxPageSize = 1000;
     }
@@ -86,12 +86,12 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
 
-    create(correlationId: string, message: LogMessageV1,
+    addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
-            let id: string;
+        let id: string;
         async.series([
             (callback) => {
-                this.createLogs(correlationId, message, (err: any, message: LogMessageV1) => {
+                this.create(correlationId, message, (err: any, message: LogMessageV1) => {
                     if (!err)
                         id = message.id
                     callback(err, message);
@@ -103,7 +103,7 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
                     // Assign id
                     let newMessage = _.omit(message, 'id');
                     newMessage._id = id;
-                    this._modelError.create(newMessage, (err, newMessage) => {
+                    this._errorModel.create(newMessage, (err, newMessage) => {
                         if (!err)
                             this._logger.trace(correlationId, "Created in %s with id = %s", this._errorCollection, newMessage._id);
                         newMessage = this.convertToPublic(newMessage);
@@ -120,15 +120,74 @@ export class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<Lo
 
     }
 
-    createLogs(correlationId: string, message: LogMessageV1,
+    create(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
         super.create(correlationId, message, callback);
+    }
+
+    public addBatch(correlationId: string, messages: LogMessageV1[],
+        callback: (err: any) => void): void {
+
+        if (messages == null || messages.length == 0) {
+            if (callback) callback(null);
+            return;
+        }
+
+        let batch = this._model.collection.initializeUnorderedBulkOp();
+        let errorsBatch = this._errorModel.collection.initializeUnorderedBulkOp();
+        let errorsCount = 0;
+
+        for (let item of messages) {
+            batch.insert({
+                _id: item.id,
+                time: item.time,
+                source: item.source,
+                level: item.level,
+                correlation_id: item.correlation_id,
+                error: item.error,
+                message: item.message
+            });
+
+            if (item.level <= LogLevel.Error) {
+                errorsCount++;
+                errorsBatch.insert({
+                    _id: item.id,
+                    time: item.time,
+                    source: item.source,
+                    level: item.level,
+                    correlation_id: item.correlation_id,
+                    error: item.error,
+                    message: item.message
+                });
+            }
+        }
+
+        batch.execute((err) => {
+            if (!err)
+                this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+        });
+
+        if (errorsCount > 0) {
+            errorsBatch.execute((err) => {
+                if (!err)
+                    this._logger.trace(correlationId, "Created %d data in %s", errorsCount, this._errorCollection);
+            });
+        }
+
+        if (callback) callback(null);
+
     }
 
     public deleteExpired(correlationId: string, expireLogsTime: Date, expireErrorsTime: Date,
         callback: (err: any) => void): void {
         this.deleteByFilter(correlationId, FilterParams.fromTuples("to_time", expireLogsTime), null);
         //  delete errors from errors collection
+        this._errorModel.remove(this.composeFilter(FilterParams.fromTuples("to_time", expireErrorsTime)), (err, count) => {
+            if (!err)
+                this._logger.trace(correlationId, "Deleted %s items from %s", count, this._errorCollection);
+            if (callback)
+                callback(err);
+        });
     }
 
 }

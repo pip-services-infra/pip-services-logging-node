@@ -21,7 +21,7 @@ export class LoggingPersistenceFixture {
     public testCreateMessages(done) {
         async.series([
             (callback) => {
-                this._persistence.create(
+                this._persistence.addOne(
                     null, 
                     new LogMessageV1(LogLevel.Info, null, "123", null, "AAA"), 
                     (err, message) => {
@@ -32,7 +32,7 @@ export class LoggingPersistenceFixture {
                 );
             },
             (callback) => {
-                this._persistence.create(
+                this._persistence.addOne(
                     null, 
                     new LogMessageV1(LogLevel.Debug, null, "123", null, "BBB"), 
                     (err, message) => {
@@ -46,7 +46,7 @@ export class LoggingPersistenceFixture {
                 let message = new LogMessageV1(LogLevel.Error, null, "123", ErrorDescriptionFactory.create(new Error()), "AAB");
                 message.time = new Date(1975, 1, 1, 0, 0, 0, 0);
 
-                this._persistence.create(
+                this._persistence.addOne(
                     null, 
                     message, 
                     (err, message) => {

@@ -10,9 +10,9 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
     constructor() {
         super('logs', LoggingMongoDbSchema_1.LoggingMongoDbSchema());
         this._errorCollection = "errors";
-        this._schemaError = LoggingMongoDbSchema_1.LoggingMongoDbSchema(this._errorCollection);
-        this._schemaError.set('collection', this._errorCollection);
-        this._modelError = this._connection.model(this._errorCollection, this._schemaError);
+        this._errorSchema = LoggingMongoDbSchema_1.LoggingMongoDbSchema(this._errorCollection);
+        this._errorSchema.set('collection', this._errorCollection);
+        this._errorModel = this._connection.model(this._errorCollection, this._errorSchema);
         this._maxPageSize = 1000;
     }
     composeFilter(filter) {
@@ -53,11 +53,11 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
     deleteByFilter(correlationId, filter, callback) {
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
-    create(correlationId, message, callback) {
+    addOne(correlationId, message, callback) {
         let id;
         async.series([
             (callback) => {
-                this.createLogs(correlationId, message, (err, message) => {
+                this.create(correlationId, message, (err, message) => {
                     if (!err)
                         id = message.id;
                     callback(err, message);
@@ -69,7 +69,7 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
                     // Assign id
                     let newMessage = _.omit(message, 'id');
                     newMessage._id = id;
-                    this._modelError.create(newMessage, (err, newMessage) => {
+                    this._errorModel.create(newMessage, (err, newMessage) => {
                         if (!err)
                             this._logger.trace(correlationId, "Created in %s with id = %s", this._errorCollection, newMessage._id);
                         newMessage = this.convertToPublic(newMessage);
@@ -84,12 +84,63 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
             callback(err, result[0]);
         });
     }
-    createLogs(correlationId, message, callback) {
+    create(correlationId, message, callback) {
         super.create(correlationId, message, callback);
+    }
+    addBatch(correlationId, messages, callback) {
+        if (messages == null || messages.length == 0) {
+            if (callback)
+                callback(null);
+            return;
+        }
+        let batch = this._model.collection.initializeUnorderedBulkOp();
+        let errorsBatch = this._errorModel.collection.initializeUnorderedBulkOp();
+        let errorsCount = 0;
+        for (let item of messages) {
+            batch.insert({
+                _id: item.id,
+                time: item.time,
+                source: item.source,
+                level: item.level,
+                correlation_id: item.correlation_id,
+                error: item.error,
+                message: item.message
+            });
+            if (item.level <= pip_services_commons_node_2.LogLevel.Error) {
+                errorsCount++;
+                errorsBatch.insert({
+                    _id: item.id,
+                    time: item.time,
+                    source: item.source,
+                    level: item.level,
+                    correlation_id: item.correlation_id,
+                    error: item.error,
+                    message: item.message
+                });
+            }
+        }
+        batch.execute((err) => {
+            if (!err)
+                this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+        });
+        if (errorsCount > 0) {
+            errorsBatch.execute((err) => {
+                if (!err)
+                    this._logger.trace(correlationId, "Created %d data in %s", errorsCount, this._errorCollection);
+            });
+        }
+        if (callback)
+            callback(null);
     }
     deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback) {
         this.deleteByFilter(correlationId, pip_services_commons_node_1.FilterParams.fromTuples("to_time", expireLogsTime), null);
         //  delete errors from errors collection
+        this._errorModel.remove(this.composeFilter(pip_services_commons_node_1.FilterParams.fromTuples("to_time", expireErrorsTime)), (err, count) => {
+            if (!err)
+                this._logger.trace(correlationId, "Deleted %s items from %s", count, this._errorCollection);
+            if (callback)
+                callback(err);
+        });
     }
 }
 exports.LoggingMongoDbPersistence = LoggingMongoDbPersistence;

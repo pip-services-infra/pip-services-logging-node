@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let _ = require('lodash');
+let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
@@ -95,7 +97,7 @@ class LoggingMemoryPersistence {
         else
             messages.push(message);
     }
-    create(correlationId, message, callback) {
+    addOne(correlationId, message, callback) {
         // Add to all messages
         this.truncateMessages(this._messages, this._maxTotalSize);
         this.insertMessage(message, this._messages);
@@ -106,6 +108,11 @@ class LoggingMemoryPersistence {
         }
         if (callback)
             callback(null, message);
+    }
+    addBatch(correlationId, data, callback) {
+        async.each(data, (d, callback) => {
+            this.addOne(correlationId, d, callback);
+        }, callback);
     }
     clear(correlationId, callback) {
         this._messages = [];

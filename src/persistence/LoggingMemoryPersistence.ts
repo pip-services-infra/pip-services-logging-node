@@ -1,3 +1,6 @@
+let _ = require('lodash');
+let async = require('async');
+
 import { ConfigParams } from 'pip-services-commons-node';
 import { IConfigurable } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
@@ -117,7 +120,7 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
             messages.push(message);
     }
 
-    public create(correlationId: string, message: LogMessageV1,
+    public addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
 
         // Add to all messages
@@ -131,6 +134,14 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
         }
 
         if (callback) callback(null, message);
+    }
+
+    public addBatch(correlationId: string, data: LogMessageV1[],
+        callback: (err: any) => void): void {
+
+        async.each(data, (d, callback) => {
+            this.addOne(correlationId, d, callback);
+        }, callback);
     }
 
     public clear(correlationId: string, callback?: (err: any) => void): void {

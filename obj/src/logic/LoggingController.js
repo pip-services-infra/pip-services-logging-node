@@ -9,28 +9,13 @@ const pip_services_commons_node_4 = require("pip-services-commons-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
-        this._expireCleanupTimeout = 1; // 1 day
+        this._expireCleanupTimeout = 60; // 60 min
         this._expireLogsTimeout = 3; // 3 days
         this._expireErrorsTimeout = 30; // 30 days
+        this._interval = null;
         this._dependencyResolver = new pip_services_commons_node_2.DependencyResolver();
         this._dependencyResolver.put('read_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
         this._dependencyResolver.put('write_persistence', new pip_services_commons_node_1.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
-        this.deleteExpired("logs", null);
-    }
-    deleteExpired(correlationId, callback) {
-        setTimeout(() => {
-            let now = new Date().getTime();
-            let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
-            let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
-            async.each(this._writePersistence, (p, callback) => {
-                p.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
-            }, (err) => {
-                if (callback)
-                    callback(err);
-            });
-            console.log('Expired logs and errors cleared');
-            this.deleteExpired(correlationId, callback);
-        }, 1000 * 60 * 60 * 24 * this._expireCleanupTimeout); // ms
     }
     getCommandSet() {
         if (this._commandSet == null)
@@ -39,13 +24,44 @@ class LoggingController {
     }
     configure(config) {
         this._dependencyResolver.configure(config);
+        // TODO: add timeout config
+        console.log(config);
+        console.log(config.getAsIntegerWithDefault('options.expire_cleanup_timeout', this._expireCleanupTimeout));
+        this._expireCleanupTimeout = config.getAsIntegerWithDefault('options.expire_cleanup_timeout', this._expireCleanupTimeout);
+        // this._expireLogsTimeout: number = 3; // 3 days
+        // this._expireErrorsTimeout: number = 30; // 30 days
     }
     setReferences(references) {
         this._dependencyResolver.setReferences(references);
         this._readPersistence = this._dependencyResolver.getOneRequired('read_persistence');
         this._writePersistence = this._dependencyResolver.getOptional('write_persistence');
+        let contextInfo = references.getOneOptional(new pip_services_commons_node_1.Descriptor("pip-services", "context-info", "default", "*", "1.0"));
+        if (contextInfo != null && this._source == "")
+            this._source = contextInfo.name;
+    }
+    isOpened() {
+        return this._interval != null;
+    }
+    open(correlationId, callback) {
+        if (this._interval != null) {
+            clearInterval(this._interval);
+        }
+        this._interval = setInterval(() => {
+            this.deleteExpired(correlationId, null);
+        }, 1000 * 60 * this._expireCleanupTimeout);
+        if (callback != null)
+            callback(null);
+    }
+    close(correlationId, callback) {
+        if (this._interval != null) {
+            clearTimeout(this._interval);
+            this._interval = null;
+        }
+        if (callback != null)
+            callback(null);
     }
     writeMessage(correlationId, message, callback) {
+        message.source = message.source || this._source;
         message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
         message.time = message.time || new Date();
         async.each(this._writePersistence, (p, callback) => {
@@ -87,6 +103,18 @@ class LoggingController {
             if (callback)
                 callback(err);
         });
+    }
+    deleteExpired(correlationId, callback) {
+        let now = new Date().getTime();
+        let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
+        let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
+        async.each(this._writePersistence, (p, callback) => {
+            p.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
+        }, (err) => {
+            if (callback)
+                callback(err);
+        });
+        console.log('Expired logs and errors cleared');
     }
 }
 exports.LoggingController = LoggingController;

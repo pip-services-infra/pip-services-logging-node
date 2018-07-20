@@ -24,12 +24,9 @@ class LoggingController {
     }
     configure(config) {
         this._dependencyResolver.configure(config);
-        // TODO: add timeout config
-        console.log(config);
-        console.log(config.getAsIntegerWithDefault('options.expire_cleanup_timeout', this._expireCleanupTimeout));
         this._expireCleanupTimeout = config.getAsIntegerWithDefault('options.expire_cleanup_timeout', this._expireCleanupTimeout);
-        // this._expireLogsTimeout: number = 3; // 3 days
-        // this._expireErrorsTimeout: number = 30; // 30 days
+        this._expireLogsTimeout = config.getAsIntegerWithDefault('options._expire_logs_timeout', this._expireLogsTimeout);
+        this._expireErrorsTimeout = config.getAsIntegerWithDefault('options._expire_errors_timeout', this._expireErrorsTimeout);
     }
     setReferences(references) {
         this._dependencyResolver.setReferences(references);

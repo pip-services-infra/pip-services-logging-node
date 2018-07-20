@@ -1,11 +1,11 @@
 let process = require('process');
 import { ConfigParams } from 'pip-services-commons-node';
 
-import { LoggingMongoDbPersistence } from '../../src/persistence/LoggingMongoDbPersistence';
+import { LogsMongoDbPersistence } from '../../src/persistence/LogsMongoDbPersistence';
 import { LoggingPersistenceFixture } from './LoggingPersistenceFixture';
 
-suite('LoggingMongoDbPersistence', ()=> {
-    let persistence: LoggingMongoDbPersistence;
+suite('LogsMongoDbPersistence', ()=> {
+    let persistence: LogsMongoDbPersistence;
     let fixture: LoggingPersistenceFixture;
 
     setup((done) => {
@@ -23,7 +23,7 @@ suite('LoggingMongoDbPersistence', ()=> {
             "connection.uri", MONGO_SERVICE_URI
         );
 
-        persistence = new LoggingMongoDbPersistence();
+        persistence = new LogsMongoDbPersistence();
         persistence.configure(dbConfig);
 
         fixture = new LoggingPersistenceFixture(persistence);

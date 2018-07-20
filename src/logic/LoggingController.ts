@@ -1,7 +1,7 @@
 let _ = require('lodash');
 let async = require('async');
 
-import { ConfigParams, IOpenable } from 'pip-services-commons-node';
+import { ConfigParams, IOpenable, IdGenerator } from 'pip-services-commons-node';
 import { IConfigurable } from 'pip-services-commons-node';
 import { IReferences } from 'pip-services-commons-node';
 import { Descriptor } from 'pip-services-commons-node';
@@ -31,7 +31,7 @@ export class LoggingController
     private _expireLogsTimeout: number = 3; // 3 days
     private _expireErrorsTimeout: number = 30; // 30 days
     private _interval: any = null;
-    private _source: string;
+    private _source: string = "";
 
     constructor() {
         this._dependencyResolver = new DependencyResolver();
@@ -57,7 +57,6 @@ export class LoggingController
         this._readPersistence = this._dependencyResolver.getOneRequired<ILoggingPersistence>('read_persistence');
         this._writePersistence = this._dependencyResolver.getOptional<ILoggingPersistence>('write_persistence');
 
-        
         let contextInfo = references.getOneOptional<ContextInfo>(
             new Descriptor("pip-services", "context-info", "default", "*", "1.0"));
         if (contextInfo != null && this._source == "")
@@ -88,17 +87,29 @@ export class LoggingController
         }
 
         if (callback != null)
-        callback(null);
+            callback(null);
     }
 
     public writeMessage(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
 
+        message.id = IdGenerator.nextLong();
         message.source = message.source || this._source;
         message.level = message.level || LogLevel.Trace;
         message.time = message.time || new Date();
+
         async.each(this._writePersistence, (p, callback) => {
-            p.addOne(correlationId, message, callback);
+            if (p.constructor.name == "ErrorsMongoDbPersistence") {
+                if (message.level <= LogLevel.Error) {
+                    p.addOne(correlationId, message, callback);
+                }
+                else {
+                    callback(null);
+                }
+            }
+            else {
+                p.addOne(correlationId, message, callback);
+            }
         }, (err) => {
             if (callback) callback(err, message);
         });
@@ -112,13 +123,26 @@ export class LoggingController
             return;
         }
 
+        let errors: LogMessageV1[] = [];
+
         _.each(messages, (message) => {
+            message.id = IdGenerator.nextLong();
+            message.source = message.source || this._source;
             message.level = message.level || LogLevel.Trace;
             message.time = message.time || new Date();
+
+            if (message.level <= LogLevel.Error) {
+                errors.push(message);
+            }
         });
 
         async.each(this._writePersistence, (p, callback) => {
-            p.addBatch(correlationId, messages, callback);
+            if (p.constructor.name == "ErrorsMongoDbPersistence") {
+                p.addBatch(correlationId, errors, callback);
+            }
+            else {
+                p.addBatch(correlationId, messages, callback);
+            }
         }, (err) => {
             if (callback) callback(err);
         });

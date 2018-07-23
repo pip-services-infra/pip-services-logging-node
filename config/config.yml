@@ -35,18 +35,12 @@
 
 {{#if MEMORY_ENABLED}}
 # In-memory persistence. Use only for testing!
-- descriptor: "pip-services-logging:persistence:memory:default:1.0"
-{{/if}}
-
-{{#if FILE_ENABLED}}
-# File persistence. Use it for testing of for simple standalone deployments
-- descriptor: "pip-services-logging:persistence:file:default:1.0"
-  path: {{FILE_PATH}}{{#unless FILE_PATH}}"../data/logging.json"{{/unless}}
+- descriptor: "pip-services-logging:persistence-messages:memory:default:1.0"
 {{/if}}
 
 {{#if MONGO_ENABLED}}
 # MongoDB Persistence for storing logs
-- descriptor: "pip-services-logging:persistence:mongodb:logs:1.0"
+- descriptor: "pip-services-logging:persistence-messages:mongodb:default:1.0"
   collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}logs{{/unless}}
   connection:
     uri: {{{MONGO_SERVICE_URI}}}
@@ -58,7 +52,7 @@
     password: {{MONGO_PASS}}
     
 # MongoDB Persistence for storing Errors
-- descriptor: "pip-services-logging:persistence:mongodb:errors:1.0"
+- descriptor: "pip-services-logging:persistence-errors:mongodb:default:1.0"
   collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}errors{{/unless}}
   connection:
     uri: {{{MONGO_SERVICE_URI}}}
@@ -70,10 +64,10 @@
     password: {{MONGO_PASS}}
 {{/if}}
 
-{{#unless MEMORY_ENABLED}}{{#unless FILE_ENABLED}}{{#unless MONGO_ENABLED}}
+{{#unless MEMORY_ENABLED}}{{#unless MONGO_ENABLED}}
 # Default in-memory persistence
-- descriptor: "pip-services-logging:persistence:memory:default:1.0"
-{{/unless}}{{/unless}}{{/unless}}
+- descriptor: "pip-services-logging:persistence-messages:memory:default:1.0"
+{{/unless}}{{/unless}}
 
 # Default controller
 - descriptor: "pip-services-logging:controller:default:default:1.0"

@@ -11,14 +11,13 @@ import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingController } from './ILoggingController';
 export declare class LoggingController implements ILoggingController, ICommandable, IConfigurable, IReferenceable, IOpenable {
     private _dependencyResolver;
-    private _readPersistence;
-    private _writePersistence;
+    private _messagesPersistence;
+    private _errorsPersistence;
     private _commandSet;
     private _expireCleanupTimeout;
     private _expireLogsTimeout;
     private _expireErrorsTimeout;
     private _interval;
-    private _source;
     constructor();
     getCommandSet(): CommandSet;
     configure(config: ConfigParams): void;

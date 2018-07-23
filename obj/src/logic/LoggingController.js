@@ -6,7 +6,6 @@ const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
 const pip_services_commons_node_4 = require("pip-services-commons-node");
-const pip_services_commons_node_5 = require("pip-services-commons-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
@@ -14,10 +13,9 @@ class LoggingController {
         this._expireLogsTimeout = 3; // 3 days
         this._expireErrorsTimeout = 30; // 30 days
         this._interval = null;
-        this._source = "";
         this._dependencyResolver = new pip_services_commons_node_3.DependencyResolver();
-        this._dependencyResolver.put('read_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
-        this._dependencyResolver.put('write_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
+        this._dependencyResolver.put('messages_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence-messages', '*', '*', '*'));
+        this._dependencyResolver.put('errors_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence-errors', '*', '*', '*'));
     }
     getCommandSet() {
         if (this._commandSet == null)
@@ -32,11 +30,8 @@ class LoggingController {
     }
     setReferences(references) {
         this._dependencyResolver.setReferences(references);
-        this._readPersistence = this._dependencyResolver.getOneRequired('read_persistence');
-        this._writePersistence = this._dependencyResolver.getOptional('write_persistence');
-        let contextInfo = references.getOneOptional(new pip_services_commons_node_2.Descriptor("pip-services", "context-info", "default", "*", "1.0"));
-        if (contextInfo != null && this._source == "")
-            this._source = contextInfo.name;
+        this._messagesPersistence = this._dependencyResolver.getOneRequired('messages_persistence');
+        this._errorsPersistence = this._dependencyResolver.getOneRequired('errors_persistence');
     }
     isOpened() {
         return this._interval != null;
@@ -61,24 +56,22 @@ class LoggingController {
     }
     writeMessage(correlationId, message, callback) {
         message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-        message.source = message.source || this._source;
-        message.level = message.level || pip_services_commons_node_5.LogLevel.Trace;
+        message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
         message.time = message.time || new Date();
-        async.each(this._writePersistence, (p, callback) => {
-            if (p.constructor.name == "ErrorsMongoDbPersistence") {
-                if (message.level <= pip_services_commons_node_5.LogLevel.Error) {
-                    p.addOne(correlationId, message, callback);
-                }
-                else {
-                    callback(null);
+        async.parallel([
+            (callback) => {
+                this._messagesPersistence.addOne(correlationId, message, callback);
+            },
+            (callback) => {
+                if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
+                    this._errorsPersistence.addOne(correlationId, message, callback);
                 }
             }
-            else {
-                p.addOne(correlationId, message, callback);
-            }
-        }, (err) => {
-            if (callback)
+        ], (err, results) => {
+            if (!err) {
+                let message = results[0];
                 callback(err, message);
+            }
         });
     }
     writeMessages(correlationId, messages, callback) {
@@ -90,52 +83,40 @@ class LoggingController {
         let errors = [];
         _.each(messages, (message) => {
             message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-            message.source = message.source || this._source;
-            message.level = message.level || pip_services_commons_node_5.LogLevel.Trace;
+            message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
             message.time = message.time || new Date();
-            if (message.level <= pip_services_commons_node_5.LogLevel.Error) {
+            if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
                 errors.push(message);
             }
         });
-        async.each(this._writePersistence, (p, callback) => {
-            if (p.constructor.name == "ErrorsMongoDbPersistence") {
-                p.addBatch(correlationId, errors, callback);
+        async.parallel([
+            (callback) => {
+                this._messagesPersistence.addBatch(correlationId, messages, callback);
+            },
+            (callback) => {
+                if (errors.length > 0) {
+                    this._errorsPersistence.addBatch(correlationId, errors, callback);
+                }
             }
-            else {
-                p.addBatch(correlationId, messages, callback);
-            }
-        }, (err) => {
-            if (callback)
-                callback(err);
+        ], (err) => {
+            callback(err);
         });
     }
     readMessages(correlationId, filter, paging, callback) {
-        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+        this._messagesPersistence.getPageByFilter(correlationId, filter, paging, callback);
     }
     readErrors(correlationId, filter, paging, callback) {
-        filter = filter || new pip_services_commons_node_4.FilterParams();
-        filter.setAsObject('errors_only', true);
-        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+        this._errorsPersistence.getPageByFilter(correlationId, filter, paging, callback);
     }
     clear(correlationId, callback) {
-        async.each(this._writePersistence, (p, callback) => {
-            p.clear(correlationId, callback);
-        }, (err) => {
-            if (callback)
-                callback(err);
-        });
+        this._messagesPersistence.clear(correlationId, callback);
     }
     deleteExpired(correlationId, callback) {
         let now = new Date().getTime();
         let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
         let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
-        async.each(this._writePersistence, (p, callback) => {
-            p.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
-        }, (err) => {
-            if (callback)
-                callback(err);
-        });
-        console.log('Expired logs and errors cleared');
+        this._messagesPersistence.deleteExpired(correlationId, expireLogsTime, callback);
+        this._errorsPersistence.deleteExpired(correlationId, expireErrorsTime, callback);
     }
 }
 exports.LoggingController = LoggingController;

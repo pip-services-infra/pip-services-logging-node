@@ -1,6 +1,6 @@
 export { ILoggingPersistence } from './ILoggingPersistence';
 export { LoggingMemoryPersistence } from './LoggingMemoryPersistence';
-export { LogsMongoDbPersistence } from './LogsMongoDbPersistence';
-export { LogsMongoDbSchema} from './LogsMongoDbSchema'
-export { ErrorsMongoDbPersistence } from './ErrorsMongoDbPersistence';
-export { ErrorsMongoDbSchema} from './ErrorsMongoDbSchema'
+export { LoggingMessagesMongoDbPersistence } from './LoggingMessagesMongoDbPersistence';
+export { LoggingMessagesMongoDbSchema} from './LoggingMessagesMongoDbSchema'
+export { LoggingErrorsMongoDbPersistence } from './LoggingErrorsMongoDbPersistence';
+export { LoggingErrorsMongoDbSchema} from './LoggingErrorsMongoDbSchema'

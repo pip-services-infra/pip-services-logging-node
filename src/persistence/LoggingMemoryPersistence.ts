@@ -21,7 +21,7 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
 
     public constructor() { }
 
-    public configure(config: ConfigParams) : void {
+    public configure(config: ConfigParams): void {
         this._maxPageSize = config.getAsIntegerWithDefault('options.max_page_size', this._maxPageSize);
         this._maxErrorSize = config.getAsIntegerWithDefault('options.max_error_size', this._maxErrorSize);
         this._maxTotalSize = config.getAsIntegerWithDefault('options.max_total_size', this._maxTotalSize);
@@ -151,22 +151,13 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
         if (callback) callback(null);
     }
 
-    public deleteExpired(correlationId: string, expireLogsTime: Date, expireErrorsTime: Date,
-        callback: (err: any) => void): void {
+    public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {
 
         let originalLogsSize = this._messages.length;
-        let originalErrorsSize = this._messages.length;
-        this._messages = _.filter(this._messages, d => d.time.getTime() > expireLogsTime.getTime());
-        this._errors = _.filter(this._messages, d => d.time.getTime() > expireErrorsTime.getTime());
+        this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
         let deletedLogs = originalLogsSize - this._messages.length;
-        let deletedErrors = originalErrorsSize - this._errors.length;
 
-        if (deletedLogs > 0) {
-            //TODO: log and check
-            
-        } else {
-            if (callback) callback(null);
-        }
+        if (callback) callback(null);
     }
 
 }

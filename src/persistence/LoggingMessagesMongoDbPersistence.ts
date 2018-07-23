@@ -11,13 +11,13 @@ import { IdentifiableMongoDbPersistence } from 'pip-services-data-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
-import { ErrorsMongoDbSchema } from './ErrorsMongoDbSchema';
+import { LoggingMessagesMongoDbSchema } from './LoggingMessagesMongoDbSchema';
 import { callbackify } from 'util';
 
-export class ErrorsMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
+export class LoggingMessagesMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
 
     constructor() {
-        super('errors', ErrorsMongoDbSchema());
+        super('logs', LoggingMessagesMongoDbSchema());
 
         this._maxPageSize = 1000;
     }
@@ -77,53 +77,44 @@ export class ErrorsMongoDbPersistence extends IdentifiableMongoDbPersistence<Log
         super.deleteByFilter(correlationId, this.composeFilter(filter), callback);
     }
 
-    addOne(correlationId: string, message: LogMessageV1,
-        callback?: (err: any, message: LogMessageV1) => void): void {
-        
-            super.create(correlationId, message, callback);
-
-    }
-
-    create(correlationId: string, message: LogMessageV1,
+    public addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
         super.create(correlationId, message, callback);
     }
 
     public addBatch(correlationId: string, messages: LogMessageV1[],
         callback: (err: any) => void): void {
+        if (messages == null || messages.length == 0) {
+            if (callback) callback(null);
+            return;
+        }
 
-            if (messages == null || messages.length == 0) {
-                if (callback) callback(null);
-                return;
-            }
-    
-            let batch = this._model.collection.initializeUnorderedBulkOp();
-    
-            for (let item of messages) {
-                batch.insert({
-                    _id: item.id,
-                    time: item.time,
-                    source: item.source,
-                    level: item.level,
-                    correlation_id: item.correlation_id,
-                    error: item.error,
-                    message: item.message
-                });
-            }
-    
-            batch.execute((err) => {
-                if (!err)
-                    this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+        let batch = this._model.collection.initializeUnorderedBulkOp();
+
+        for (let item of messages) {
+            batch.insert({
+                _id: item.id,
+                time: item.time,
+                source: item.source,
+                level: item.level,
+                correlation_id: item.correlation_id,
+                error: item.error,
+                message: item.message
             });
-    
-            if (callback) 
-                callback(null);
+        }
+
+        batch.execute((err) => {
+            if (!err)
+                this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+        });
+
+        if (callback) 
+            callback(null);
 
     }
 
-    public deleteExpired(correlationId: string, expireLogsTime: Date, expireErrorsTime: Date,
-        callback: (err: any) => void): void {
-        this.deleteByFilter(correlationId, FilterParams.fromTuples("to_time", expireLogsTime), null);
+    public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {
+        this.deleteByFilter(correlationId, FilterParams.fromTuples("to_time", expireTime), callback);
     }
 
 }

@@ -17,6 +17,5 @@ export interface ILoggingPersistence extends ICleanable {
 
     clear(correlationId: string, callback?: (err: any) => void): void;
 
-    deleteExpired(correlationId: string, expireLogsTime: Date,
-        expireErrorsTime: Date, callback: (err: any) => void): void;
+    deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void;
 }

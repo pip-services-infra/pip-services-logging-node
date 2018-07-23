@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { LogLevel, ErrorDescription } from 'pip-services-commons-node';
 
-export let LogsMongoDbSchema = function(collection?: string) {
+export let LoggingErrorsMongoDbSchema = function(collection?: string) {
     collection = collection || 'logs';
 
     let ErrorDescriptionSchema = new Schema(
@@ -27,7 +27,7 @@ export let LogsMongoDbSchema = function(collection?: string) {
         }
     });
 
-    let LogsSchema = new Schema(
+    let ErrorsSchema = new Schema(
         {
             _id: { type: String },
             time: { type: Date, required: true, index: true },
@@ -43,7 +43,7 @@ export let LogsMongoDbSchema = function(collection?: string) {
         }
     );
 
-    LogsSchema.set('toJSON', {
+    ErrorsSchema.set('toJSON', {
         transform: function (doc, ret) {
             ret.id = ret._id;
             delete ret._id;
@@ -52,7 +52,7 @@ export let LogsMongoDbSchema = function(collection?: string) {
         }
     });
 
-    LogsSchema.index({ source: 1, level: 1, time: -1 });
+    ErrorsSchema.index({ source: 1, level: 1, time: -1 });
 
-    return LogsSchema;
+    return ErrorsSchema;
 }

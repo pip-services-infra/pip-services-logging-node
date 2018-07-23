@@ -24,19 +24,18 @@ export class LoggingController
     implements ILoggingController, ICommandable, IConfigurable, IReferenceable, IOpenable {
 
     private _dependencyResolver: DependencyResolver;
-    private _readPersistence: ILoggingPersistence;
-    private _writePersistence: ILoggingPersistence[];
+    private _messagesPersistence: ILoggingPersistence;
+    private _errorsPersistence: ILoggingPersistence;
     private _commandSet: LoggingCommandSet;
     private _expireCleanupTimeout: number = 60; // 60 min
     private _expireLogsTimeout: number = 3; // 3 days
     private _expireErrorsTimeout: number = 30; // 30 days
     private _interval: any = null;
-    private _source: string = "";
 
     constructor() {
         this._dependencyResolver = new DependencyResolver();
-        this._dependencyResolver.put('read_persistence', new Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
-        this._dependencyResolver.put('write_persistence', new Descriptor('pip-services-logging', 'persistence', '*', '*', '*'));
+        this._dependencyResolver.put('messages_persistence', new Descriptor('pip-services-logging', 'persistence-messages', '*', '*', '*'));
+        this._dependencyResolver.put('errors_persistence', new Descriptor('pip-services-logging', 'persistence-errors', '*', '*', '*'));
     }
 
     public getCommandSet(): CommandSet {
@@ -54,13 +53,8 @@ export class LoggingController
 
     public setReferences(references: IReferences): void {
         this._dependencyResolver.setReferences(references);
-        this._readPersistence = this._dependencyResolver.getOneRequired<ILoggingPersistence>('read_persistence');
-        this._writePersistence = this._dependencyResolver.getOptional<ILoggingPersistence>('write_persistence');
-
-        let contextInfo = references.getOneOptional<ContextInfo>(
-            new Descriptor("pip-services", "context-info", "default", "*", "1.0"));
-        if (contextInfo != null && this._source == "")
-            this._source = contextInfo.name;
+        this._messagesPersistence = this._dependencyResolver.getOneRequired<ILoggingPersistence>('messages_persistence');
+        this._errorsPersistence = this._dependencyResolver.getOneRequired<ILoggingPersistence>('errors_persistence');
     }
 
     public isOpened(): boolean {
@@ -94,25 +88,23 @@ export class LoggingController
         callback?: (err: any, message: LogMessageV1) => void): void {
 
         message.id = IdGenerator.nextLong();
-        message.source = message.source || this._source;
         message.level = message.level || LogLevel.Trace;
         message.time = message.time || new Date();
 
-        async.each(this._writePersistence, (p, callback) => {
-            if (p.constructor.name == "ErrorsMongoDbPersistence") {
+        async.parallel([
+            (callback) => {
+                this._messagesPersistence.addOne(correlationId, message, callback);
+            },
+            (callback) => {
                 if (message.level <= LogLevel.Error) {
-                    p.addOne(correlationId, message, callback);
-                }
-                else {
-                    callback(null);
+                    this._errorsPersistence.addOne(correlationId, message, callback);
                 }
             }
-            else {
-                p.addOne(correlationId, message, callback);
-            }
-        }, (err) => {
-            if (callback) callback(err, message);
-        });
+        ],
+            (err, results) => {
+                let message = results[0]
+                callback(err, message);
+            });
     }
 
     public writeMessages(correlationId: string, messages: LogMessageV1[],
@@ -127,7 +119,6 @@ export class LoggingController
 
         _.each(messages, (message) => {
             message.id = IdGenerator.nextLong();
-            message.source = message.source || this._source;
             message.level = message.level || LogLevel.Trace;
             message.time = message.time || new Date();
 
@@ -136,36 +127,34 @@ export class LoggingController
             }
         });
 
-        async.each(this._writePersistence, (p, callback) => {
-            if (p.constructor.name == "ErrorsMongoDbPersistence") {
-                p.addBatch(correlationId, errors, callback);
+
+        async.parallel([
+            (callback) => {
+                this._messagesPersistence.addBatch(correlationId, messages, callback);
+            },
+            (callback) => {
+                if (errors.length > 0) {
+                    this._errorsPersistence.addBatch(correlationId, errors, callback);
+                }
             }
-            else {
-                p.addBatch(correlationId, messages, callback);
-            }
-        }, (err) => {
-            if (callback) callback(err);
-        });
+        ],
+            (err) => {
+                callback(err);
+            });
     }
 
     public readMessages(correlationId: string, filter: FilterParams, paging: PagingParams,
         callback: (err: any, page: DataPage<LogMessageV1>) => void): void {
-        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+        this._messagesPersistence.getPageByFilter(correlationId, filter, paging, callback);
     }
 
     public readErrors(correlationId: string, filter: FilterParams, paging: PagingParams,
         callback: (err: any, page: DataPage<LogMessageV1>) => void): void {
-        filter = filter || new FilterParams();
-        filter.setAsObject('errors_only', true);
-        this._readPersistence.getPageByFilter(correlationId, filter, paging, callback);
+        this._errorsPersistence.getPageByFilter(correlationId, filter, paging, callback);
     }
 
     public clear(correlationId: string, callback?: (err: any) => void): void {
-        async.each(this._writePersistence, (p, callback) => {
-            p.clear(correlationId, callback);
-        }, (err) => {
-            if (callback) callback(err);
-        });
+        this._messagesPersistence.clear(correlationId, callback);
     }
 
     public deleteExpired(correlationId: string, callback: (err: any) => void) {
@@ -173,12 +162,7 @@ export class LoggingController
         let expireLogsTime = new Date(now - this._expireLogsTimeout * 24 * 3600000);
         let expireErrorsTime = new Date(now - this._expireErrorsTimeout * 24 * 3600000);
 
-        async.each(this._writePersistence, (p, callback) => {
-            p.deleteExpired(correlationId, expireLogsTime, expireErrorsTime, callback);
-        }, (err) => {
-            if (callback) callback(err);
-        });
-
-        console.log('Expired logs and errors cleared');
+        this._messagesPersistence.deleteExpired(correlationId, expireLogsTime, callback);
+        this._errorsPersistence.deleteExpired(correlationId, expireErrorsTime, callback);
     }
 }

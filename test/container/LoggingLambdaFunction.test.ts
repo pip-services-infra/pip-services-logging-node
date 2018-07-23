@@ -11,8 +11,7 @@ import { LogLevel } from 'pip-services-commons-node';
 import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../../src/data/version1/LogMessageV1';
-import { LoggingMessagesMemoryPersistence } from '../../src/persistence/LoggingMessagesMemoryPersistence';
-import { LoggingErrorsMemoryPersistence } from '../../src/persistence/LoggingErrorsMemoryPersistence';
+import { LoggingMemoryPersistence } from '../../src/persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../../src/logic/LoggingController';
 import { LoggingLambdaFunction } from '../../src/container/LoggingLambdaFunction';
 

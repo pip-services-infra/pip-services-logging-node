@@ -2,8 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
-const LoggingMessagesMemoryPersistence_1 = require("../persistence/LoggingMessagesMemoryPersistence");
-const LoggingErrorsMemoryPersistence_1 = require("../persistence/LoggingErrorsMemoryPersistence");
+const LoggingMemoryPersistence_1 = require("../persistence/LoggingMemoryPersistence");
 const LoggingMessagesMongoDbPersistence_1 = require("../persistence/LoggingMessagesMongoDbPersistence");
 const LoggingErrorsMongoDbPersistence_1 = require("../persistence/LoggingErrorsMongoDbPersistence");
 const LoggingController_1 = require("../logic/LoggingController");
@@ -12,8 +11,8 @@ const LoggingSenecaServiceV1_1 = require("../services/version1/LoggingSenecaServ
 class LoggingServiceFactory extends pip_services_commons_node_1.Factory {
     constructor() {
         super();
-        this.registerAsType(LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor, LoggingMessagesMemoryPersistence_1.LoggingMessagesMemoryPersistence);
-        this.registerAsType(LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor, LoggingErrorsMemoryPersistence_1.LoggingErrorsMemoryPersistence);
+        this.registerAsType(LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor, LoggingMemoryPersistence_1.LoggingMemoryPersistence);
+        this.registerAsType(LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor, LoggingMemoryPersistence_1.LoggingMemoryPersistence);
         this.registerAsType(LoggingServiceFactory.LoggingMessagesMongoDbPersistenceDescriptor, LoggingMessagesMongoDbPersistence_1.LoggingMessagesMongoDbPersistence);
         this.registerAsType(LoggingServiceFactory.LoggingErrorsMongoDbPersistenceDescriptor, LoggingErrorsMongoDbPersistence_1.LoggingErrorsMongoDbPersistence);
         this.registerAsType(LoggingServiceFactory.ControllerDescriptor, LoggingController_1.LoggingController);

@@ -12,8 +12,7 @@ import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 import { SenecaInstance } from 'pip-services-net-node';
 
 import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
-import { LoggingMessagesMemoryPersistence } from '../../../src/persistence/LoggingMessagesMemoryPersistence';
-import { LoggingErrorsMemoryPersistence } from '../../../src/persistence/LoggingErrorsMemoryPersistence';
+import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../../../src/logic/LoggingController';
 import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSenecaServiceV1';
 
@@ -21,13 +20,13 @@ import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSe
 suite('LoggingSenecaServiceV1', ()=> {
     let seneca: any;
     let service: LoggingSenecaServiceV1;
-    let messagesPersistence = new LoggingMessagesMemoryPersistence();
-    let errorsPersistence = new LoggingErrorsMemoryPersistence();
+    let messagesPersistence = new LoggingMemoryPersistence();
+    let errorsPersistence = new LoggingMemoryPersistence();
     let controller: LoggingController;
 
     suiteSetup((done) => {
-        let messagesPersistence = new LoggingMessagesMemoryPersistence();
-        let errorsPersistence = new LoggingErrorsMemoryPersistence();
+        let messagesPersistence = new LoggingMemoryPersistence();
+        let errorsPersistence = new LoggingMemoryPersistence();
         controller = new LoggingController();
 
         service = new LoggingSenecaServiceV1();

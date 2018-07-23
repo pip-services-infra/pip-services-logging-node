@@ -1,8 +1,7 @@
 import { Factory } from 'pip-services-commons-node';
 import { Descriptor } from 'pip-services-commons-node';
 
-import { LoggingMessagesMemoryPersistence } from '../persistence/LoggingMessagesMemoryPersistence';
-import { LoggingErrorsMemoryPersistence } from '../persistence/LoggingErrorsMemoryPersistence';
+import { LoggingMemoryPersistence } from '../persistence/LoggingMemoryPersistence';
 import { LoggingMessagesMongoDbPersistence} from '../persistence/LoggingMessagesMongoDbPersistence';
 import { LoggingErrorsMongoDbPersistence} from '../persistence/LoggingErrorsMongoDbPersistence';
 import { LoggingController } from '../logic/LoggingController';
@@ -21,8 +20,8 @@ export class LoggingServiceFactory extends Factory {
 	
 	constructor() {
 		super();
-		this.registerAsType(LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor, LoggingMessagesMemoryPersistence);
-		this.registerAsType(LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor, LoggingErrorsMemoryPersistence);
+		this.registerAsType(LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor, LoggingMemoryPersistence);
+		this.registerAsType(LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor, LoggingMemoryPersistence);
 		this.registerAsType(LoggingServiceFactory.LoggingMessagesMongoDbPersistenceDescriptor, LoggingMessagesMongoDbPersistence);
 		this.registerAsType(LoggingServiceFactory.LoggingErrorsMongoDbPersistenceDescriptor, LoggingErrorsMongoDbPersistence);
 		this.registerAsType(LoggingServiceFactory.ControllerDescriptor, LoggingController);

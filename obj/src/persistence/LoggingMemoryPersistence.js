@@ -5,11 +5,11 @@ let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
-class LoggingMessagesMemoryPersistence {
+class LoggingMemoryPersistence {
     constructor() {
         this._maxPageSize = 100;
         this._maxTotalSize = 10000;
-        this._messages = [];
+        this._logs = [];
     }
     configure(config) {
         this._maxPageSize = config.getAsIntegerWithDefault('options.max_page_size', this._maxPageSize);
@@ -49,9 +49,9 @@ class LoggingMessagesMemoryPersistence {
         let skip = paging.getSkip(0);
         let take = paging.getTake(this._maxPageSize);
         let data = [];
-        let messages = this._messages;
-        for (let index = 0; index < messages.length; index++) {
-            let message = messages[index];
+        let logs = this._logs;
+        for (let index = 0; index < logs.length; index++) {
+            let message = logs[index];
             if (search != null && !this.messageContains(message, search))
                 continue;
             if (level != null && level != message.level)
@@ -74,28 +74,28 @@ class LoggingMessagesMemoryPersistence {
         let page = new pip_services_commons_node_3.DataPage(data, total);
         callback(null, page);
     }
-    truncateMessages(messages, maxSize) {
-        // Remove messages from the end
-        if (messages.length > maxSize)
-            messages.splice(maxSize - 1, messages.length - maxSize);
+    truncatelogs(logs, maxSize) {
+        // Remove logs from the end
+        if (logs.length > maxSize)
+            logs.splice(maxSize - 1, logs.length - maxSize);
     }
-    insertMessage(message, messages) {
+    insertMessage(message, logs) {
         let index = 0;
-        // Find index to keep messages sorted by time
-        while (index < messages.length) {
-            if (message.time >= messages[index].time)
+        // Find index to keep logs sorted by time
+        while (index < logs.length) {
+            if (message.time >= logs[index].time)
                 break;
             index++;
         }
-        if (index < messages.length)
-            messages.splice(index, 0, message);
+        if (index < logs.length)
+            logs.splice(index, 0, message);
         else
-            messages.push(message);
+            logs.push(message);
     }
     addOne(correlationId, message, callback) {
-        // Add to all messages
-        this.truncateMessages(this._messages, this._maxTotalSize);
-        this.insertMessage(message, this._messages);
+        // Add to all logs
+        this.truncatelogs(this._logs, this._maxTotalSize);
+        this.insertMessage(message, this._logs);
         if (callback)
             callback(null, message);
     }
@@ -105,15 +105,15 @@ class LoggingMessagesMemoryPersistence {
         }, callback);
     }
     clear(correlationId, callback) {
-        this._messages = [];
+        this._logs = [];
         if (callback)
             callback(null);
     }
     deleteExpired(correlationId, expireTime, callback) {
-        this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
+        this._logs = _.filter(this._logs, d => d.time.getTime() > expireTime.getTime());
         if (callback)
             callback(null);
     }
 }
-exports.LoggingMessagesMemoryPersistence = LoggingMessagesMemoryPersistence;
-//# sourceMappingURL=LoggingMessagesMemoryPersistence.js.map
+exports.LoggingMemoryPersistence = LoggingMemoryPersistence;
+//# sourceMappingURL=LoggingMemoryPersistence.js.map

@@ -6,7 +6,7 @@ const pip_services_commons_node_3 = require("pip-services-commons-node");
 const pip_services_commons_node_4 = require("pip-services-commons-node");
 const pip_services_net_node_1 = require("pip-services-net-node");
 const pip_services_net_node_2 = require("pip-services-net-node");
-const LoggingMessagesMemoryPersistence_1 = require("../persistence/LoggingMessagesMemoryPersistence");
+const LoggingMemoryPersistence_1 = require("../persistence/LoggingMemoryPersistence");
 const LoggingController_1 = require("../logic/LoggingController");
 const LoggingSenecaServiceV1_1 = require("../services/version1/LoggingSenecaServiceV1");
 class LoggingSenecaPlugin extends pip_services_net_node_1.SenecaPlugin {
@@ -20,10 +20,10 @@ class LoggingSenecaPlugin extends pip_services_net_node_1.SenecaPlugin {
         logger.configure(pip_services_commons_node_3.ConfigParams.fromValue(loggerOptions));
         let controller = new LoggingController_1.LoggingController();
         let messagesPersistenceOptions = options.messagesPersistence || {};
-        let messagesPersistence = new LoggingMessagesMemoryPersistence_1.LoggingMessagesMemoryPersistence();
+        let messagesPersistence = new LoggingMemoryPersistence_1.LoggingMemoryPersistence();
         messagesPersistence.configure(pip_services_commons_node_3.ConfigParams.fromValue(messagesPersistenceOptions));
         let errorsPersistenceOptions = options.errorsPersistence || {};
-        let errorsPersistence = new LoggingMessagesMemoryPersistence_1.LoggingMessagesMemoryPersistence();
+        let errorsPersistence = new LoggingMemoryPersistence_1.LoggingMemoryPersistence();
         errorsPersistence.configure(pip_services_commons_node_3.ConfigParams.fromValue(errorsPersistenceOptions));
         let senecaInstance = new pip_services_net_node_2.SenecaInstance(seneca);
         let service = new LoggingSenecaServiceV1_1.LoggingSenecaServiceV1();

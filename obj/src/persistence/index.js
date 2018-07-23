@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggingMessagesMemoryPersistence_1 = require("./LoggingMessagesMemoryPersistence");
-exports.LoggingMessagesMemoryPersistence = LoggingMessagesMemoryPersistence_1.LoggingMessagesMemoryPersistence;
-var LoggingErrorsMemoryPersistence_1 = require("./LoggingErrorsMemoryPersistence");
-exports.LoggingErrorsMemoryPersistence = LoggingErrorsMemoryPersistence_1.LoggingErrorsMemoryPersistence;
+var LoggingMemoryPersistence_1 = require("./LoggingMemoryPersistence");
+exports.LoggingMemoryPersistence = LoggingMemoryPersistence_1.LoggingMemoryPersistence;
 var LoggingMessagesMongoDbPersistence_1 = require("./LoggingMessagesMongoDbPersistence");
 exports.LoggingMessagesMongoDbPersistence = LoggingMessagesMongoDbPersistence_1.LoggingMessagesMongoDbPersistence;
 var LoggingMessagesMongoDbSchema_1 = require("./LoggingMessagesMongoDbSchema");

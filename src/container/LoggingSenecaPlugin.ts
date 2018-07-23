@@ -6,8 +6,7 @@ import { ConfigException } from 'pip-services-commons-node';
 import { SenecaPlugin } from 'pip-services-net-node';
 import { SenecaInstance } from 'pip-services-net-node';
 
-import { LoggingMessagesMemoryPersistence } from '../persistence/LoggingMessagesMemoryPersistence';
-import { LoggingErrorsMemoryPersistence } from '../persistence/LoggingErrorsMemoryPersistence';
+import { LoggingMemoryPersistence } from '../persistence/LoggingMemoryPersistence';
 import { LoggingController } from '../logic/LoggingController';
 import { LoggingSenecaServiceV1 } from '../services/version1/LoggingSenecaServiceV1';
 
@@ -26,11 +25,11 @@ export class LoggingSenecaPlugin extends SenecaPlugin {
         let controller = new LoggingController();
 
         let messagesPersistenceOptions = options.messagesPersistence || {};
-        let messagesPersistence = new LoggingMessagesMemoryPersistence();
+        let messagesPersistence = new LoggingMemoryPersistence();
         messagesPersistence.configure(ConfigParams.fromValue(messagesPersistenceOptions));
 
         let errorsPersistenceOptions = options.errorsPersistence || {};
-        let errorsPersistence = new LoggingMessagesMemoryPersistence();
+        let errorsPersistence = new LoggingMemoryPersistence();
         errorsPersistence.configure(ConfigParams.fromValue(errorsPersistenceOptions));
 
         let senecaInstance = new SenecaInstance(seneca);

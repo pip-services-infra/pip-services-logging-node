@@ -11,17 +11,17 @@ import { LogLevel } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
 
-export class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPersistence {
+export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersistence {
     private _maxPageSize: number = 100;
-    private _maxErrorSize: number = 1000;
+    private _maxTotalSize: number = 10000;
 
-    private _errors: LogMessageV1[] = [];
+    private _logs: LogMessageV1[] = [];
 
     public constructor() { }
 
     public configure(config: ConfigParams): void {
         this._maxPageSize = config.getAsIntegerWithDefault('options.max_page_size', this._maxPageSize);
-        this._maxErrorSize = config.getAsIntegerWithDefault('options.max_error_size', this._maxErrorSize);
+        this._maxTotalSize = config.getAsIntegerWithDefault('options.max_total_size', this._maxTotalSize);
     }
 
     private matchString(value: string, search: string): boolean {
@@ -67,9 +67,9 @@ export class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPe
         let take = paging.getTake(this._maxPageSize);
         let data: LogMessageV1[] = [];
 
-        let messages =this._errors;
-        for (let index = 0; index < messages.length; index++) {
-            let message = messages[index];
+        let logs = this._logs;
+        for (let index = 0; index < logs.length; index++) {
+            let message = logs[index];
             if (search != null && !this.messageContains(message, search))
                 continue;
             if (level != null && level != message.level)
@@ -96,34 +96,32 @@ export class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPe
         callback(null, page);
     }
 
-    private truncateMessages(messages: LogMessageV1[], maxSize: number): void {
-        // Remove messages from the end
-        if (messages.length > maxSize)
-            messages.splice(maxSize - 1, messages.length - maxSize);
+    private truncatelogs(logs: LogMessageV1[], maxSize: number): void {
+        // Remove logs from the end
+        if (logs.length > maxSize)
+            logs.splice(maxSize - 1, logs.length - maxSize);
     }
 
-    private insertMessage(message: LogMessageV1, messages: LogMessageV1[]): void {
+    private insertMessage(message: LogMessageV1, logs: LogMessageV1[]): void {
         let index = 0;
-        // Find index to keep messages sorted by time
-        while (index < messages.length) {
-            if (message.time >= messages[index].time)
+        // Find index to keep logs sorted by time
+        while (index < logs.length) {
+            if (message.time >= logs[index].time)
                 break;
             index++;
         }
-        if (index < messages.length)
-            messages.splice(index, 0, message);
+        if (index < logs.length)
+            logs.splice(index, 0, message);
         else
-            messages.push(message);
+            logs.push(message);
     }
 
     public addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
 
-        // Add to errors separately
-        if (message.level <= LogLevel.Error) {
-            this.truncateMessages(this._errors, this._maxErrorSize);
-            this.insertMessage(message, this._errors);
-        }
+        // Add to all logs
+        this.truncatelogs(this._logs, this._maxTotalSize);
+        this.insertMessage(message, this._logs);
 
         if (callback) callback(null, message);
     }
@@ -137,13 +135,13 @@ export class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPe
     }
 
     public clear(correlationId: string, callback?: (err: any) => void): void {
-        this._errors = [];
+        this._logs = [];
 
         if (callback) callback(null);
     }
 
     public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {
-        this._errors = _.filter(this._errors, d => d.time.getTime() > expireTime.getTime());
+        this._logs = _.filter(this._logs, d => d.time.getTime() > expireTime.getTime());
 
         if (callback) callback(null);
     }

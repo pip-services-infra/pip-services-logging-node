@@ -11,7 +11,8 @@ import { LogLevel } from 'pip-services-commons-node';
 import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
-import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
+import { LoggingMessagesMemoryPersistence } from '../../../src/persistence/LoggingMessagesMemoryPersistence';
+import { LoggingErrorsMemoryPersistence } from '../../../src/persistence/LoggingErrorsMemoryPersistence';
 import { LoggingController } from '../../../src/logic/LoggingController';
 import { LoggingHttpServiceV1 } from '../../../src/services/version1/LoggingHttpServiceV1';
 
@@ -27,14 +28,16 @@ suite('LoggingHttpServiceV1', ()=> {
     let rest: any;
 
     suiteSetup((done) => {
-        let persistence = new LoggingMemoryPersistence();
+        let messagesPersistence = new LoggingMessagesMemoryPersistence();
+        let errorsPersistence = new LoggingErrorsMemoryPersistence();
         let controller = new LoggingController();
 
         service = new LoggingHttpServiceV1();
         service.configure(restConfig);
 
         let references: References = References.fromTuples(
-            new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
+            new Descriptor('pip-services-logging', 'persistence-messages', 'memory', 'default', '1.0'), messagesPersistence,
+            new Descriptor('pip-services-logging', 'persistence-errors', 'memory', 'default', '1.0'), errorsPersistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
             new Descriptor('pip-services-logging', 'service', 'http', 'default', '1.0'), service
         );

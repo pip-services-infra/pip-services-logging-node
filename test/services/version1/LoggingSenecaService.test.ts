@@ -12,7 +12,8 @@ import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 import { SenecaInstance } from 'pip-services-net-node';
 
 import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
-import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
+import { LoggingMessagesMemoryPersistence } from '../../../src/persistence/LoggingMessagesMemoryPersistence';
+import { LoggingErrorsMemoryPersistence } from '../../../src/persistence/LoggingErrorsMemoryPersistence';
 import { LoggingController } from '../../../src/logic/LoggingController';
 import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSenecaServiceV1';
 
@@ -20,11 +21,13 @@ import { LoggingSenecaServiceV1 } from '../../../src/services/version1/LoggingSe
 suite('LoggingSenecaServiceV1', ()=> {
     let seneca: any;
     let service: LoggingSenecaServiceV1;
-    let persistence: LoggingMemoryPersistence;
+    let messagesPersistence = new LoggingMessagesMemoryPersistence();
+    let errorsPersistence = new LoggingErrorsMemoryPersistence();
     let controller: LoggingController;
 
     suiteSetup((done) => {
-        persistence = new LoggingMemoryPersistence();
+        let messagesPersistence = new LoggingMessagesMemoryPersistence();
+        let errorsPersistence = new LoggingErrorsMemoryPersistence();
         controller = new LoggingController();
 
         service = new LoggingSenecaServiceV1();
@@ -38,7 +41,8 @@ suite('LoggingSenecaServiceV1', ()=> {
         let references: References = References.fromTuples(
             new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
             new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaAddon,
-            new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
+            new Descriptor('pip-services-logging', 'persistence-messages', 'memory', 'default', '1.0'), messagesPersistence,
+            new Descriptor('pip-services-logging', 'persistence-errors', 'memory', 'default', '1.0'), errorsPersistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
             new Descriptor('pip-services-logging', 'service', 'commandable-seneca', 'default', '1.0'), service
         );
@@ -56,7 +60,8 @@ suite('LoggingSenecaServiceV1', ()=> {
     });
     
     setup((done) => {
-        persistence.clear(null, done);
+        messagesPersistence.clear(null, done);
+        errorsPersistence.clear(null, null);
     });
     
     test('CRUD Operations', (done) => {

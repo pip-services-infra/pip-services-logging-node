@@ -11,12 +11,10 @@ import { LogLevel } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
 
-export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersistence {
+export class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPersistence {
     private _maxPageSize: number = 100;
     private _maxErrorSize: number = 1000;
-    private _maxTotalSize: number = 10000;
 
-    private _messages: LogMessageV1[] = [];
     private _errors: LogMessageV1[] = [];
 
     public constructor() { }
@@ -24,7 +22,6 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
     public configure(config: ConfigParams): void {
         this._maxPageSize = config.getAsIntegerWithDefault('options.max_page_size', this._maxPageSize);
         this._maxErrorSize = config.getAsIntegerWithDefault('options.max_error_size', this._maxErrorSize);
-        this._maxTotalSize = config.getAsIntegerWithDefault('options.max_total_size', this._maxTotalSize);
     }
 
     private matchString(value: string, search: string): boolean {
@@ -64,14 +61,13 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
         let maxLevel = filter.getAsNullableInteger("max_level");
         let fromTime = filter.getAsNullableDateTime("from_time");
         let toTime = filter.getAsNullableDateTime("to_time");
-        let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
 
         paging = paging || new PagingParams();
         let skip = paging.getSkip(0);
         let take = paging.getTake(this._maxPageSize);
         let data: LogMessageV1[] = [];
 
-        let messages = errorsOnly ? this._errors : this._messages;
+        let messages =this._errors;
         for (let index = 0; index < messages.length; index++) {
             let message = messages[index];
             if (search != null && !this.messageContains(message, search))
@@ -123,10 +119,6 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
     public addOne(correlationId: string, message: LogMessageV1,
         callback?: (err: any, message: LogMessageV1) => void): void {
 
-        // Add to all messages
-        this.truncateMessages(this._messages, this._maxTotalSize);
-        this.insertMessage(message, this._messages);
-
         // Add to errors separately
         if (message.level <= LogLevel.Error) {
             this.truncateMessages(this._errors, this._maxErrorSize);
@@ -145,17 +137,13 @@ export class LoggingMemoryPersistence implements IConfigurable, ILoggingPersiste
     }
 
     public clear(correlationId: string, callback?: (err: any) => void): void {
-        this._messages = [];
         this._errors = [];
 
         if (callback) callback(null);
     }
 
     public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {
-
-        let originalLogsSize = this._messages.length;
-        this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
-        let deletedLogs = originalLogsSize - this._messages.length;
+        this._errors = _.filter(this._errors, d => d.time.getTime() > expireTime.getTime());
 
         if (callback) callback(null);
     }

@@ -5,11 +5,9 @@ import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
-export declare class LoggingMemoryPersistence implements IConfigurable, ILoggingPersistence {
+export declare class LoggingErrorsMemoryPersistence implements IConfigurable, ILoggingPersistence {
     private _maxPageSize;
     private _maxErrorSize;
-    private _maxTotalSize;
-    private _messages;
     private _errors;
     constructor();
     configure(config: ConfigParams): void;

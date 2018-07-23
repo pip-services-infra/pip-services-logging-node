@@ -5,18 +5,14 @@ let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
-const pip_services_commons_node_4 = require("pip-services-commons-node");
-class LoggingMemoryPersistence {
+class LoggingMessagesMemoryPersistence {
     constructor() {
         this._maxPageSize = 100;
-        this._maxErrorSize = 1000;
         this._maxTotalSize = 10000;
         this._messages = [];
-        this._errors = [];
     }
     configure(config) {
         this._maxPageSize = config.getAsIntegerWithDefault('options.max_page_size', this._maxPageSize);
-        this._maxErrorSize = config.getAsIntegerWithDefault('options.max_error_size', this._maxErrorSize);
         this._maxTotalSize = config.getAsIntegerWithDefault('options.max_total_size', this._maxTotalSize);
     }
     matchString(value, search) {
@@ -49,12 +45,11 @@ class LoggingMemoryPersistence {
         let maxLevel = filter.getAsNullableInteger("max_level");
         let fromTime = filter.getAsNullableDateTime("from_time");
         let toTime = filter.getAsNullableDateTime("to_time");
-        let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
         paging = paging || new pip_services_commons_node_2.PagingParams();
         let skip = paging.getSkip(0);
         let take = paging.getTake(this._maxPageSize);
         let data = [];
-        let messages = errorsOnly ? this._errors : this._messages;
+        let messages = this._messages;
         for (let index = 0; index < messages.length; index++) {
             let message = messages[index];
             if (search != null && !this.messageContains(message, search))
@@ -101,11 +96,6 @@ class LoggingMemoryPersistence {
         // Add to all messages
         this.truncateMessages(this._messages, this._maxTotalSize);
         this.insertMessage(message, this._messages);
-        // Add to errors separately
-        if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
-            this.truncateMessages(this._errors, this._maxErrorSize);
-            this.insertMessage(message, this._errors);
-        }
         if (callback)
             callback(null, message);
     }
@@ -116,17 +106,14 @@ class LoggingMemoryPersistence {
     }
     clear(correlationId, callback) {
         this._messages = [];
-        this._errors = [];
         if (callback)
             callback(null);
     }
     deleteExpired(correlationId, expireTime, callback) {
-        let originalLogsSize = this._messages.length;
         this._messages = _.filter(this._messages, d => d.time.getTime() > expireTime.getTime());
-        let deletedLogs = originalLogsSize - this._messages.length;
         if (callback)
             callback(null);
     }
 }
-exports.LoggingMemoryPersistence = LoggingMemoryPersistence;
-//# sourceMappingURL=LoggingMemoryPersistence.js.map
+exports.LoggingMessagesMemoryPersistence = LoggingMessagesMemoryPersistence;
+//# sourceMappingURL=LoggingMessagesMemoryPersistence.js.map

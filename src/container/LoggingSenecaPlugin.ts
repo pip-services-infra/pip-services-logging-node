@@ -6,7 +6,8 @@ import { ConfigException } from 'pip-services-commons-node';
 import { SenecaPlugin } from 'pip-services-net-node';
 import { SenecaInstance } from 'pip-services-net-node';
 
-import { LoggingMemoryPersistence } from '../persistence/LoggingMemoryPersistence';
+import { LoggingMessagesMemoryPersistence } from '../persistence/LoggingMessagesMemoryPersistence';
+import { LoggingErrorsMemoryPersistence } from '../persistence/LoggingErrorsMemoryPersistence';
 import { LoggingController } from '../logic/LoggingController';
 import { LoggingSenecaServiceV1 } from '../services/version1/LoggingSenecaServiceV1';
 
@@ -24,9 +25,13 @@ export class LoggingSenecaPlugin extends SenecaPlugin {
 
         let controller = new LoggingController();
 
-        let persistenceOptions = options.persistence || {};
-        let persistence = new LoggingMemoryPersistence();
-        persistence.configure(ConfigParams.fromValue(persistenceOptions));
+        let messagesPersistenceOptions = options.messagesPersistence || {};
+        let messagesPersistence = new LoggingMessagesMemoryPersistence();
+        messagesPersistence.configure(ConfigParams.fromValue(messagesPersistenceOptions));
+
+        let errorsPersistenceOptions = options.errorsPersistence || {};
+        let errorsPersistence = new LoggingMessagesMemoryPersistence();
+        errorsPersistence.configure(ConfigParams.fromValue(errorsPersistenceOptions));
 
         let senecaInstance = new SenecaInstance(seneca);
 
@@ -37,7 +42,8 @@ export class LoggingSenecaPlugin extends SenecaPlugin {
         return References.fromTuples(
             new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
             new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaInstance,
-            new Descriptor('pip-services-logging', 'persistence', 'memory', 'default', '1.0'), persistence,
+            new Descriptor('pip-services-logging', 'persistence-messages', 'memory', 'default', '1.0'), messagesPersistence,
+            new Descriptor('pip-services-logging', 'persistence-errors', 'memory', 'default', '1.0'), errorsPersistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,
             new Descriptor('pip-services-logging', 'service', 'seneca', 'default', '1.0'), service
         );

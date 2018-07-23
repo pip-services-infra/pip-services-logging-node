@@ -98,6 +98,8 @@ export class LoggingController
             (callback) => {
                 if (message.level <= LogLevel.Error) {
                     this._errorsPersistence.addOne(correlationId, message, callback);
+                } else {
+                    callback();
                 }
             }
         ],
@@ -135,6 +137,8 @@ export class LoggingController
             (callback) => {
                 if (errors.length > 0) {
                     this._errorsPersistence.addBatch(correlationId, errors, callback);
+                } else {
+                    callback();
                 }
             }
         ],

@@ -10,7 +10,7 @@ suite('LoggingErrorsMongoDbPersistence', ()=> {
 
     setup((done) => {
         var MONGO_DB = process.env["MONGO_DB"] || "test";
-        var MONGO_COLLECTION = process.env["MONGO_COLLECTION"] || "logs";
+        var MONGO_COLLECTION = process.env["MONGO_COLLECTION"] || "errors";
         var MONGO_SERVICE_HOST = process.env["MONGO_SERVICE_HOST"] || "localhost";
         var MONGO_SERVICE_PORT = process.env["MONGO_SERVICE_PORT"] || "27017";
         var MONGO_SERVICE_URI = process.env["MONGO_SERVICE_URI"];

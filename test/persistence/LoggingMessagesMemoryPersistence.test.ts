@@ -1,14 +1,14 @@
 let _ = require('lodash');
 
-import { LoggingMemoryPersistence } from '../../src/persistence/LoggingMemoryPersistence';
+import { LoggingMessagesMemoryPersistence } from '../../src/persistence/LoggingMessagesMemoryPersistence';
 import { LoggingPersistenceFixture } from './LoggingPersistenceFixture';
 
-suite('LoggingMemoryPersistence', ()=> {
-    let persistence: LoggingMemoryPersistence;
+suite('LoggingMessagesMemoryPersistence', ()=> {
+    let persistence: LoggingMessagesMemoryPersistence;
     let fixture: LoggingPersistenceFixture;
 
     suiteSetup((done) => {
-        persistence = new LoggingMemoryPersistence();
+        persistence = new LoggingMessagesMemoryPersistence();
         fixture = new LoggingPersistenceFixture(persistence);
         done();
     });

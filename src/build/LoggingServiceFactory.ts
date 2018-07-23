@@ -1,7 +1,8 @@
 import { Factory } from 'pip-services-commons-node';
 import { Descriptor } from 'pip-services-commons-node';
 
-import { LoggingMemoryPersistence } from '../persistence/LoggingMemoryPersistence';
+import { LoggingMessagesMemoryPersistence } from '../persistence/LoggingMessagesMemoryPersistence';
+import { LoggingErrorsMemoryPersistence } from '../persistence/LoggingErrorsMemoryPersistence';
 import { LoggingMessagesMongoDbPersistence} from '../persistence/LoggingMessagesMongoDbPersistence';
 import { LoggingErrorsMongoDbPersistence} from '../persistence/LoggingErrorsMongoDbPersistence';
 import { LoggingController } from '../logic/LoggingController';
@@ -10,7 +11,8 @@ import { LoggingSenecaServiceV1 } from '../services/version1/LoggingSenecaServic
 
 export class LoggingServiceFactory extends Factory {
 	public static Descriptor = new Descriptor("pip-services-logging", "factory", "default", "default", "1.0");
-	public static MemoryPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence", "memory", "*", "1.0");
+	public static LoggingMessagesMemoryPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence-messages", "memory", "*", "1.0");
+	public static LoggingErrorsMemoryPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence-errors", "memory", "*", "1.0");
 	public static LoggingMessagesMongoDbPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence-messages", "mongodb", "*", "1.0");
 	public static LoggingErrorsMongoDbPersistenceDescriptor = new Descriptor("pip-services-logging", "persistence-errors", "mongodb", "*", "1.0");
 	public static ControllerDescriptor = new Descriptor("pip-services-logging", "controller", "default", "*", "1.0");
@@ -19,7 +21,8 @@ export class LoggingServiceFactory extends Factory {
 	
 	constructor() {
 		super();
-		this.registerAsType(LoggingServiceFactory.MemoryPersistenceDescriptor, LoggingMemoryPersistence);
+		this.registerAsType(LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor, LoggingMessagesMemoryPersistence);
+		this.registerAsType(LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor, LoggingErrorsMemoryPersistence);
 		this.registerAsType(LoggingServiceFactory.LoggingMessagesMongoDbPersistenceDescriptor, LoggingMessagesMongoDbPersistence);
 		this.registerAsType(LoggingServiceFactory.LoggingErrorsMongoDbPersistenceDescriptor, LoggingErrorsMongoDbPersistence);
 		this.registerAsType(LoggingServiceFactory.ControllerDescriptor, LoggingController);

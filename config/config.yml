@@ -36,6 +36,7 @@
 {{#if MEMORY_ENABLED}}
 # In-memory persistence. Use only for testing!
 - descriptor: "pip-services-logging:persistence-messages:memory:default:1.0"
+- descriptor: "pip-services-logging:persistence-errors:memory:default:1.0"
 {{/if}}
 
 {{#if MONGO_ENABLED}}
@@ -67,6 +68,7 @@
 {{#unless MEMORY_ENABLED}}{{#unless MONGO_ENABLED}}
 # Default in-memory persistence
 - descriptor: "pip-services-logging:persistence-messages:memory:default:1.0"
+- descriptor: "pip-services-logging:persistence-errors:memory:default:1.0"
 {{/unless}}{{/unless}}
 
 # Default controller

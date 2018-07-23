@@ -66,12 +66,13 @@ class LoggingController {
                 if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
                     this._errorsPersistence.addOne(correlationId, message, callback);
                 }
+                else {
+                    callback();
+                }
             }
         ], (err, results) => {
-            if (!err) {
-                let message = results[0];
-                callback(err, message);
-            }
+            let message = results[0];
+            callback(err, message);
         });
     }
     writeMessages(correlationId, messages, callback) {
@@ -96,6 +97,9 @@ class LoggingController {
             (callback) => {
                 if (errors.length > 0) {
                     this._errorsPersistence.addBatch(correlationId, errors, callback);
+                }
+                else {
+                    callback();
                 }
             }
         ], (err) => {

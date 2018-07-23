@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const pip_services_commons_node_1 = require("pip-services-commons-node");
-exports.LoggingErrorsMongoDbSchema = function (collection) {
+exports.LoggingMongoDbSchema = function (collection) {
     collection = collection || 'logs';
     let ErrorDescriptionSchema = new mongoose_1.Schema({
         type: { type: String, required: true },
@@ -23,7 +23,7 @@ exports.LoggingErrorsMongoDbSchema = function (collection) {
             return ret;
         }
     });
-    let ErrorsSchema = new mongoose_1.Schema({
+    let LogsSchema = new mongoose_1.Schema({
         _id: { type: String },
         time: { type: Date, required: true, index: true },
         source: { type: String, required: false, index: true },
@@ -35,7 +35,7 @@ exports.LoggingErrorsMongoDbSchema = function (collection) {
         collection: collection,
         autoIndex: true
     });
-    ErrorsSchema.set('toJSON', {
+    LogsSchema.set('toJSON', {
         transform: function (doc, ret) {
             ret.id = ret._id;
             delete ret._id;
@@ -43,7 +43,7 @@ exports.LoggingErrorsMongoDbSchema = function (collection) {
             return ret;
         }
     });
-    ErrorsSchema.index({ source: 1, level: 1, time: -1 });
-    return ErrorsSchema;
+    LogsSchema.index({ source: 1, level: 1, time: -1 });
+    return LogsSchema;
 };
-//# sourceMappingURL=LoggingErrorsMongoDbSchema.js.map
+//# sourceMappingURL=LoggingMongoDbSchema.js.map

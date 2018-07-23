@@ -1,16 +1,16 @@
 let process = require('process');
 import { ConfigParams } from 'pip-services-commons-node';
 
-import { LoggingErrorsMongoDbPersistence } from '../../src/persistence/LoggingErrorsMongoDbPersistence';
+import { LoggingMessagesMongoDbPersistence } from '../../src/persistence/LoggingMessagesMongoDbPersistence';
 import { LoggingPersistenceFixture } from './LoggingPersistenceFixture';
 
-suite('LoggingErrorsMongoDbPersistence', ()=> {
-    let persistence: LoggingErrorsMongoDbPersistence;
+suite('LoggingMessagesMongoDbPersistence', ()=> {
+    let persistence: LoggingMessagesMongoDbPersistence;
     let fixture: LoggingPersistenceFixture;
 
     setup((done) => {
         var MONGO_DB = process.env["MONGO_DB"] || "test";
-        var MONGO_COLLECTION = process.env["MONGO_COLLECTION"] || "errors";
+        var MONGO_COLLECTION = process.env["MONGO_COLLECTION"] || "messages";
         var MONGO_SERVICE_HOST = process.env["MONGO_SERVICE_HOST"] || "localhost";
         var MONGO_SERVICE_PORT = process.env["MONGO_SERVICE_PORT"] || "27017";
         var MONGO_SERVICE_URI = process.env["MONGO_SERVICE_URI"];
@@ -23,7 +23,7 @@ suite('LoggingErrorsMongoDbPersistence', ()=> {
             "connection.uri", MONGO_SERVICE_URI
         );
 
-        persistence = new LoggingErrorsMongoDbPersistence();
+        persistence = new LoggingMessagesMongoDbPersistence();
         persistence.configure(dbConfig);
 
         fixture = new LoggingPersistenceFixture(persistence);

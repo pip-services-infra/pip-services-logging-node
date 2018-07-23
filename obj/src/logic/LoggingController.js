@@ -68,10 +68,8 @@ class LoggingController {
                 }
             }
         ], (err, results) => {
-            if (!err) {
-                let message = results[0];
-                callback(err, message);
-            }
+            let message = results[0];
+            callback(err, message);
         });
     }
     writeMessages(correlationId, messages, callback) {

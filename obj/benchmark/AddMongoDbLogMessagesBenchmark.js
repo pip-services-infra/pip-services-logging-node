@@ -94,7 +94,7 @@ class AddMongoDbLogMessagesBenchmark extends pip_benchmark_node_1.Benchmark {
     }
     execute(callback) {
         let LogMessages = [];
-        for (let siteNumber = 1; siteNumber <= this._sourceQuantity; siteNumber++) {
+        for (let sourceNumber = 1; sourceNumber <= this._sourceQuantity; sourceNumber++) {
             LogMessages.push({
                 id: this.getRandomString(10),
                 time: this._time,

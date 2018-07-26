@@ -40,9 +40,9 @@
 {{/if}}
 
 {{#if MONGO_ENABLED}}
-# MongoDB Persistence for storing logs
+# MongoDB Persistence for storing messages
 - descriptor: "pip-services-logging:persistence-messages:mongodb:default:1.0"
-  collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}logs{{/unless}}
+  collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}messages{{/unless}}
   connection:
     uri: {{{MONGO_SERVICE_URI}}}
     host: {{{MONGO_SERVICE_HOST}}}{{#unless MONGO_SERVICE_HOST}}localhost{{/unless}}
@@ -52,7 +52,7 @@
     username: {{MONGO_USER}}
     password: {{MONGO_PASS}}
     
-# MongoDB Persistence for storing Errors
+# MongoDB Persistence for storing errors
 - descriptor: "pip-services-logging:persistence-errors:mongodb:default:1.0"
   collection: {{MONGO_COLLECTION}}{{#unless MONGO_COLLECTION}}errors{{/unless}}
   connection:

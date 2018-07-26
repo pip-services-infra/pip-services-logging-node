@@ -107,8 +107,8 @@ export abstract class LoggingMongoDbPersistence extends IdentifiableMongoDbPersi
 
         if (batch)
             batch.execute((err) => {
-                if (!err)
-                    this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+                // if (!err)
+                //     this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
             });
 
         if (callback)

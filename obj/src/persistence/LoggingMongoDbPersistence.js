@@ -59,6 +59,7 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
             return;
         }
         let batch = this._model.collection.initializeUnorderedBulkOp();
+<<<<<<< HEAD
         //batch can be undefined if try to write log before connected to mongodb
         for (let item of messages) {
             if (batch)
@@ -77,6 +78,23 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
                 if (!err)
                     this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
             });
+=======
+        for (let item of messages) {
+            batch.insert({
+                _id: item.id,
+                time: item.time,
+                source: item.source,
+                level: item.level,
+                correlation_id: item.correlation_id,
+                error: item.error,
+                message: item.message
+            });
+        }
+        batch.execute((err) => {
+            if (!err)
+                this._logger.trace(correlationId, "Created %d data in %s", messages.length, this._collection);
+        });
+>>>>>>> 3cf3a5c44625c10d9736adb150af97e252a541f1
         if (callback)
             callback(null);
     }

@@ -39,7 +39,7 @@ class LoggingMongoDbPersistence extends pip_services_data_node_1.IdentifiableMon
             criteria.push({ time: { $lt: toTime } });
         let source = filter.getAsNullableString("source");
         if (source != null)
-            criteria.push({ time: { $lt: source } });
+            criteria.push({ source: source });
         let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
         let errorLevel = pip_services_commons_node_2.LogLevel.Error;
         if (errorsOnly)

@@ -60,7 +60,7 @@ export abstract class LoggingMongoDbPersistence extends IdentifiableMongoDbPersi
 
         let source = filter.getAsNullableString("source");
         if (source != null)
-            criteria.push({ time: { $lt: source } });
+            criteria.push({ source: source });
 
         let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
         let errorLevel = LogLevel.Error

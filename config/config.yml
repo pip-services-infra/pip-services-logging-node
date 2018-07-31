@@ -75,7 +75,7 @@
 - descriptor: "pip-services-logging:controller:default:default:1.0"
   options:
     expire_cleanup_timeout: 60
-    expire_logs_timeout: 3
+    expire_logs_timeout: 1
     expire_errors_timeout: 30
 
 # Common HTTP endpoint

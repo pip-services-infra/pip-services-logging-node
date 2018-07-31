@@ -120,7 +120,7 @@ export abstract class LoggingMongoDbPersistence extends IdentifiableMongoDbPersi
 
     }
 
-    public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {
+    public deleteExpired(correlationId: string, expireTime: Date, callback: (err: any) => void): void {        
         this.deleteByFilter(correlationId, FilterParams.fromTuples("to_time", expireTime), callback);
     }
 

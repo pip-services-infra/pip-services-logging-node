@@ -8,30 +8,9 @@
 - descriptor: "pip-services:logger:console:default:1.0"
   level: "trace"
 
-{{#if ELASTICSEARCH_LOGGING_ENABLED}}
-# ElasticSearch logger
-- descriptor: "pip-services:logger:elasticsearch:default:1.0"
-  level: "info"
-  connection:
-    protocol: http
-    host: {{ELASTICSEARCH_LOGGING_SERVICE_HOST}}
-    port: {{ELASTICSEARCH_LOGGING_SERVICE_PORT}}
-{{/if}}
-
 # Performance counters that posts values to log
 - descriptor: "pip-services:counters:log:default:1.0"
   level: "trace"
-
-# Prometheus performance counters
-{{#if PUSHGATEWAY_METRICS_ENABLED}}
-- descriptor: "pip-services:counters:prometheus:default:1.0"
-  level: "trace"
-  interval: "30000"  
-  connection:
-    protocol: http
-    host: {{PUSHGATEWAY_METRICS_SERVICE_HOST}}
-    port: {{PUSHGATEWAY_METRICS_SERVICE_PORT}}
-{{/if}}
 
 {{#if MEMORY_ENABLED}}
 # In-memory persistence. Use only for testing!
@@ -74,7 +53,7 @@
 # Default controller
 - descriptor: "pip-services-logging:controller:default:default:1.0"
   options:
-    expire_cleanup_timeout: 60
+    expire_cleanup_timeout: 1
     expire_logs_timeout: 1
     expire_errors_timeout: 30
 

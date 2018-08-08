@@ -49,9 +49,6 @@ export class LoggingController
         this._expireCleanupTimeout = config.getAsIntegerWithDefault('options.expire_cleanup_timeout', this._expireCleanupTimeout);
         this._expireLogsTimeout = config.getAsIntegerWithDefault('options.expire_logs_timeout', this._expireLogsTimeout);
         this._expireErrorsTimeout = config.getAsIntegerWithDefault('options.expire_errors_timeout', this._expireErrorsTimeout);
-        console.log("expire_cleanup_timeout", this._expireCleanupTimeout)
-        console.log("expireLogsTimeout", this._expireLogsTimeout)
-        console.log("expireErrorsTimeout", this._expireErrorsTimeout)
     }
 
     public setReferences(references: IReferences): void {
@@ -71,7 +68,7 @@ export class LoggingController
 
         this._interval = setInterval(() => {
             this.deleteExpired(correlationId, null);
-        }, 1000 * 60 * this._expireCleanupTimeout); 
+        }, 1000 * 60 * this._expireCleanupTimeout);
 
         if (callback != null)
             callback(null);

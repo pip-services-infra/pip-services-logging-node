@@ -6,7 +6,7 @@ import { IConfigurable } from 'pip-services-commons-node';
 import { FilterParams } from 'pip-services-commons-node';
 import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
-import { LogLevel } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';

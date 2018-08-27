@@ -10,7 +10,7 @@ const pip_services_commons_node_6 = require("pip-services-commons-node");
 const pip_services_commons_node_7 = require("pip-services-commons-node");
 const pip_services_commons_node_8 = require("pip-services-commons-node");
 const pip_services_commons_node_9 = require("pip-services-commons-node");
-const pip_services_commons_node_10 = require("pip-services-commons-node");
+const pip_services_components_node_1 = require("pip-services-components-node");
 const LogMessageV1Schema_1 = require("../data/version1/LogMessageV1Schema");
 class LoggingCommandSet extends pip_services_commons_node_1.CommandSet {
     constructor(logic) {
@@ -44,7 +44,7 @@ class LoggingCommandSet extends pip_services_commons_node_1.CommandSet {
         return new pip_services_commons_node_2.Command("write_message", new pip_services_commons_node_5.ObjectSchema(true)
             .withRequiredProperty('message', new LogMessageV1Schema_1.LogMessageV1Schema()), (correlationId, args, callback) => {
             let message = args.get("message");
-            message.level = pip_services_commons_node_10.LogLevelConverter.toLogLevel(message.level);
+            message.level = pip_services_components_node_1.LogLevelConverter.toLogLevel(message.level);
             message.time = pip_services_commons_node_9.DateTimeConverter.toNullableDateTime(message.time);
             this._logic.writeMessage(correlationId, message, callback);
         });

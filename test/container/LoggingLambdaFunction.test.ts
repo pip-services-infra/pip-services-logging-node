@@ -5,9 +5,9 @@ let assert = require('chai').assert;
 import { Descriptor } from 'pip-services-commons-node';
 import { ConfigParams } from 'pip-services-commons-node';
 import { References } from 'pip-services-commons-node';
-import { ConsoleLogger } from 'pip-services-commons-node';
+import { ConsoleLogger } from 'pip-services-components-node';
 import { FilterParams } from 'pip-services-commons-node';
-import { LogLevel } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
 import { ErrorDescriptionFactory } from 'pip-services-commons-node';
 
 import { LogMessageV1 } from '../../src/data/version1/LogMessageV1';
@@ -21,7 +21,7 @@ suite('LoggingLambdaFunction', ()=> {
 
     suiteSetup((done) => {
         let config = ConfigParams.fromTuples(
-            'logger.descriptor', 'pip-services-commons:logger:console:default:1.0',
+            'logger.descriptor', 'pip-services:logger:console:default:1.0',
             'persistence.descriptor', 'pip-services-logging:persistence-messages:memory:default:1.0',
             'persistence.descriptor', 'pip-services-logging:persistence-errors:memory:default:1.0',
             'controller.descriptor', 'pip-services-logging:controller:default:default:1.0'

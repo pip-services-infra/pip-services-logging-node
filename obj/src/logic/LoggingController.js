@@ -5,7 +5,7 @@ let async = require('async');
 const pip_services_commons_node_1 = require("pip-services-commons-node");
 const pip_services_commons_node_2 = require("pip-services-commons-node");
 const pip_services_commons_node_3 = require("pip-services-commons-node");
-const pip_services_commons_node_4 = require("pip-services-commons-node");
+const pip_services_components_node_1 = require("pip-services-components-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
@@ -33,7 +33,7 @@ class LoggingController {
         this._messagesPersistence = this._dependencyResolver.getOneRequired('messages_persistence');
         this._errorsPersistence = this._dependencyResolver.getOneRequired('errors_persistence');
     }
-    isOpened() {
+    isOpen() {
         return this._interval != null;
     }
     open(correlationId, callback) {
@@ -56,14 +56,14 @@ class LoggingController {
     }
     writeMessage(correlationId, message, callback) {
         message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-        message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
+        message.level = message.level || pip_services_components_node_1.LogLevel.Trace;
         message.time = message.time || new Date();
         async.parallel([
             (callback) => {
                 this._messagesPersistence.addOne(correlationId, message, callback);
             },
             (callback) => {
-                if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
+                if (message.level <= pip_services_components_node_1.LogLevel.Error) {
                     this._errorsPersistence.addOne(correlationId, message, callback);
                 }
                 else {
@@ -84,9 +84,9 @@ class LoggingController {
         let errors = [];
         _.each(messages, (message) => {
             message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-            message.level = message.level || pip_services_commons_node_4.LogLevel.Trace;
+            message.level = message.level || pip_services_components_node_1.LogLevel.Trace;
             message.time = message.time || new Date();
-            if (message.level <= pip_services_commons_node_4.LogLevel.Error) {
+            if (message.level <= pip_services_components_node_1.LogLevel.Error) {
                 errors.push(message);
             }
         });

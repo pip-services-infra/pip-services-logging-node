@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const pip_services_commons_node_1 = require("pip-services-commons-node");
+const pip_services_components_node_1 = require("pip-services-components-node");
 exports.LoggingMongoDbSchema = function (collection) {
     collection = collection || 'logs';
     let ErrorDescriptionSchema = new mongoose_1.Schema({
@@ -27,7 +27,7 @@ exports.LoggingMongoDbSchema = function (collection) {
         _id: { type: String },
         time: { type: Date, required: true, index: true },
         source: { type: String, required: false, index: true },
-        level: { type: pip_services_commons_node_1.LogLevel, required: true, index: true },
+        level: { type: pip_services_components_node_1.LogLevel, required: true, index: true },
         correlation_id: { type: String, required: false },
         error: { type: ErrorDescriptionSchema, required: false },
         message: { type: String, required: true }

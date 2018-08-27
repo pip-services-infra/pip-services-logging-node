@@ -1,4 +1,4 @@
-import { LogLevel } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
 import { ErrorDescription } from 'pip-services-commons-node';
 
 export class LogMessageV1 {	

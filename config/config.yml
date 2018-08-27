@@ -72,6 +72,3 @@
 
 # Status service
 - descriptor: "pip-services:status-service:http:default:1.0"
-
-# Prometheus metrics service
-- descriptor: "pip-services:metrics-service:prometheus:default:1.0"

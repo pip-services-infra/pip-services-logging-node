@@ -13,7 +13,7 @@ import { TypeCode } from 'pip-services-commons-node';
 import { FilterParamsSchema } from 'pip-services-commons-node';
 import { PagingParamsSchema } from 'pip-services-commons-node';
 import { DateTimeConverter } from 'pip-services-commons-node';
-import { LogLevelConverter } from 'pip-services-commons-node';
+import { LogLevelConverter } from 'pip-services-components-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { LogMessageV1Schema } from '../data/version1/LogMessageV1Schema';

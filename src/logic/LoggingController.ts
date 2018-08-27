@@ -12,8 +12,8 @@ import { PagingParams } from 'pip-services-commons-node';
 import { DataPage } from 'pip-services-commons-node';
 import { CommandSet } from 'pip-services-commons-node';
 import { ICommandable } from 'pip-services-commons-node';
-import { LogLevel } from 'pip-services-commons-node';
-import { ContextInfo } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
+import { ContextInfo } from 'pip-services-components-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from '../persistence/ILoggingPersistence';
@@ -57,7 +57,7 @@ export class LoggingController
         this._errorsPersistence = this._dependencyResolver.getOneRequired<ILoggingPersistence>('errors_persistence');
     }
 
-    public isOpened(): boolean {
+    public isOpen(): boolean {
         return this._interval != null;
     }
 

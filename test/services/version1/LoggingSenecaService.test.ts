@@ -5,11 +5,11 @@ let assert = require('chai').assert;
 import { Descriptor } from 'pip-services-commons-node';
 import { ConfigParams } from 'pip-services-commons-node';
 import { References } from 'pip-services-commons-node';
-import { ConsoleLogger } from 'pip-services-commons-node';
+import { ConsoleLogger } from 'pip-services-components-node';
 import { FilterParams } from 'pip-services-commons-node';
-import { LogLevel } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
 import { ErrorDescriptionFactory } from 'pip-services-commons-node';
-import { SenecaInstance } from 'pip-services-net-node';
+import { SenecaInstance } from 'pip-services-seneca-node';
 
 import { LogMessageV1 } from '../../../src/data/version1/LogMessageV1';
 import { LoggingMemoryPersistence } from '../../../src/persistence/LoggingMemoryPersistence';
@@ -38,8 +38,8 @@ suite('LoggingSenecaServiceV1', ()=> {
         let senecaAddon = new SenecaInstance();
 
         let references: References = References.fromTuples(
-            new Descriptor('pip-services-commons', 'logger', 'console', 'default', '1.0'), logger,
-            new Descriptor('pip-services-net', 'seneca', 'instance', 'default', '1.0'), senecaAddon,
+            new Descriptor('pip-services', 'logger', 'console', 'default', '1.0'), logger,
+            new Descriptor('pip-services-seneca', 'seneca', 'instance', 'default', '1.0'), senecaAddon,
             new Descriptor('pip-services-logging', 'persistence-messages', 'memory', 'default', '1.0'), messagesPersistence,
             new Descriptor('pip-services-logging', 'persistence-errors', 'memory', 'default', '1.0'), errorsPersistence,
             new Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), controller,

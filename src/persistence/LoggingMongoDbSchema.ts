@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { LogLevel } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services-components-node';
 
 export let LoggingMongoDbSchema = function(collection?: string) {
     collection = collection || 'logs';

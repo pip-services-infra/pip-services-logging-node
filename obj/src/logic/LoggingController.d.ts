@@ -1,12 +1,12 @@
-import { ConfigParams, IOpenable } from 'pip-services-commons-node';
-import { IConfigurable } from 'pip-services-commons-node';
-import { IReferences } from 'pip-services-commons-node';
-import { IReferenceable } from 'pip-services-commons-node';
-import { FilterParams } from 'pip-services-commons-node';
-import { PagingParams } from 'pip-services-commons-node';
-import { DataPage } from 'pip-services-commons-node';
-import { CommandSet } from 'pip-services-commons-node';
-import { ICommandable } from 'pip-services-commons-node';
+import { ConfigParams, IOpenable } from 'pip-services3-commons-node';
+import { IConfigurable } from 'pip-services3-commons-node';
+import { IReferences } from 'pip-services3-commons-node';
+import { IReferenceable } from 'pip-services3-commons-node';
+import { FilterParams } from 'pip-services3-commons-node';
+import { PagingParams } from 'pip-services3-commons-node';
+import { DataPage } from 'pip-services3-commons-node';
+import { CommandSet } from 'pip-services3-commons-node';
+import { ICommandable } from 'pip-services3-commons-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingController } from './ILoggingController';
 export declare class LoggingController implements ILoggingController, ICommandable, IConfigurable, IReferenceable, IOpenable {

@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let _ = require('lodash');
 let async = require('async');
-const pip_services_commons_node_1 = require("pip-services-commons-node");
-const pip_services_commons_node_2 = require("pip-services-commons-node");
-const pip_services_commons_node_3 = require("pip-services-commons-node");
-const pip_services_components_node_1 = require("pip-services-components-node");
+const pip_services3_commons_node_1 = require("pip-services3-commons-node");
+const pip_services3_commons_node_2 = require("pip-services3-commons-node");
+const pip_services3_commons_node_3 = require("pip-services3-commons-node");
+const pip_services3_components_node_1 = require("pip-services3-components-node");
 const LoggingCommandSet_1 = require("./LoggingCommandSet");
 class LoggingController {
     constructor() {
@@ -13,9 +13,9 @@ class LoggingController {
         this._expireLogsTimeout = 3; // 3 days
         this._expireErrorsTimeout = 30; // 30 days
         this._interval = null;
-        this._dependencyResolver = new pip_services_commons_node_3.DependencyResolver();
-        this._dependencyResolver.put('messages_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence-messages', '*', '*', '*'));
-        this._dependencyResolver.put('errors_persistence', new pip_services_commons_node_2.Descriptor('pip-services-logging', 'persistence-errors', '*', '*', '*'));
+        this._dependencyResolver = new pip_services3_commons_node_3.DependencyResolver();
+        this._dependencyResolver.put('messages_persistence', new pip_services3_commons_node_2.Descriptor('pip-services-logging', 'persistence-messages', '*', '*', '*'));
+        this._dependencyResolver.put('errors_persistence', new pip_services3_commons_node_2.Descriptor('pip-services-logging', 'persistence-errors', '*', '*', '*'));
     }
     getCommandSet() {
         if (this._commandSet == null)
@@ -55,15 +55,15 @@ class LoggingController {
             callback(null);
     }
     writeMessage(correlationId, message, callback) {
-        message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-        message.level = message.level || pip_services_components_node_1.LogLevel.Trace;
+        message.id = pip_services3_commons_node_1.IdGenerator.nextLong();
+        message.level = message.level || pip_services3_components_node_1.LogLevel.Trace;
         message.time = message.time || new Date();
         async.parallel([
             (callback) => {
                 this._messagesPersistence.addOne(correlationId, message, callback);
             },
             (callback) => {
-                if (message.level <= pip_services_components_node_1.LogLevel.Error) {
+                if (message.level <= pip_services3_components_node_1.LogLevel.Error) {
                     this._errorsPersistence.addOne(correlationId, message, callback);
                 }
                 else {
@@ -83,10 +83,10 @@ class LoggingController {
         }
         let errors = [];
         _.each(messages, (message) => {
-            message.id = pip_services_commons_node_1.IdGenerator.nextLong();
-            message.level = message.level || pip_services_components_node_1.LogLevel.Trace;
+            message.id = pip_services3_commons_node_1.IdGenerator.nextLong();
+            message.level = message.level || pip_services3_components_node_1.LogLevel.Trace;
             message.time = message.time || new Date();
-            if (message.level <= pip_services_components_node_1.LogLevel.Error) {
+            if (message.level <= pip_services3_components_node_1.LogLevel.Error) {
                 errors.push(message);
             }
         });

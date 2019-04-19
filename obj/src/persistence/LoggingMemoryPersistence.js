@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let _ = require('lodash');
 let async = require('async');
-const pip_services_commons_node_1 = require("pip-services-commons-node");
-const pip_services_commons_node_2 = require("pip-services-commons-node");
-const pip_services_commons_node_3 = require("pip-services-commons-node");
+const pip_services3_commons_node_1 = require("pip-services3-commons-node");
+const pip_services3_commons_node_2 = require("pip-services3-commons-node");
+const pip_services3_commons_node_3 = require("pip-services3-commons-node");
 class LoggingMemoryPersistence {
     constructor() {
         this._maxPageSize = 100;
@@ -39,13 +39,13 @@ class LoggingMemoryPersistence {
         return false;
     }
     getPageByFilter(correlationId, filter, paging, callback) {
-        filter = filter || new pip_services_commons_node_1.FilterParams();
+        filter = filter || new pip_services3_commons_node_1.FilterParams();
         let search = filter.getAsNullableString("search");
         let level = filter.getAsNullableInteger("level");
         let maxLevel = filter.getAsNullableInteger("max_level");
         let fromTime = filter.getAsNullableDateTime("from_time");
         let toTime = filter.getAsNullableDateTime("to_time");
-        paging = paging || new pip_services_commons_node_2.PagingParams();
+        paging = paging || new pip_services3_commons_node_2.PagingParams();
         let skip = paging.getSkip(0);
         let take = paging.getTake(this._maxPageSize);
         let data = [];
@@ -71,7 +71,7 @@ class LoggingMemoryPersistence {
                 break;
         }
         let total = data.length;
-        let page = new pip_services_commons_node_3.DataPage(data, total);
+        let page = new pip_services3_commons_node_3.DataPage(data, total);
         callback(null, page);
     }
     truncatelogs(logs, maxSize) {

@@ -3,12 +3,12 @@ let async = require('async');
 let restify = require('restify');
 let assert = require('chai').assert;
 
-import { ConfigParams } from 'pip-services-commons-node';
-import { Descriptor } from 'pip-services-commons-node';
-import { References } from 'pip-services-commons-node';
-import { LogLevel } from 'pip-services-components-node';
-import { FilterParams } from 'pip-services-commons-node';
-import { ErrorDescriptionFactory } from 'pip-services-commons-node';
+import { ConfigParams } from 'pip-services3-commons-node';
+import { Descriptor } from 'pip-services3-commons-node';
+import { References } from 'pip-services3-commons-node';
+import { LogLevel } from 'pip-services3-components-node';
+import { FilterParams } from 'pip-services3-commons-node';
+import { ErrorDescriptionFactory } from 'pip-services3-commons-node';
 
 import { LogMessageV1 } from '../../src/data/version1/LogMessageV1';
 import { LoggingMemoryPersistence } from '../../src/persistence/LoggingMemoryPersistence';

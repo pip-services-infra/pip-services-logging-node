@@ -12,8 +12,8 @@ export declare class AddMongoDbLogMessagesBenchmark extends Benchmark {
     constructor();
     setUp(callback: (err: any) => void): void;
     tearDown(callback: (err: any) => void): void;
-    private getRandomString(length);
-    private getRandomLogLevel();
-    private getRandomErrorDescriptor();
+    private getRandomString;
+    private getRandomLogLevel;
+    private getRandomErrorDescriptor;
     execute(callback: (err: any) => void): void;
 }

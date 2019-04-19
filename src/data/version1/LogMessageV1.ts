@@ -1,5 +1,5 @@
-import { LogLevel } from 'pip-services-components-node';
-import { ErrorDescription } from 'pip-services-commons-node';
+import { LogLevel } from 'pip-services3-components-node';
+import { ErrorDescription } from 'pip-services3-commons-node';
 
 export class LogMessageV1 {	
     public constructor(level: LogLevel, source: 

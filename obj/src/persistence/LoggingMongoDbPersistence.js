@@ -2,17 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let _ = require('lodash');
 let async = require('async');
-const pip_services_commons_node_1 = require("pip-services-commons-node");
-const pip_services_components_node_1 = require("pip-services-components-node");
-const pip_services_mongodb_node_1 = require("pip-services-mongodb-node");
+const pip_services3_commons_node_1 = require("pip-services3-commons-node");
+const pip_services3_components_node_1 = require("pip-services3-components-node");
+const pip_services3_mongodb_node_1 = require("pip-services3-mongodb-node");
 const LoggingMongoDbSchema_1 = require("./LoggingMongoDbSchema");
-class LoggingMongoDbPersistence extends pip_services_mongodb_node_1.IdentifiableMongoDbPersistence {
+class LoggingMongoDbPersistence extends pip_services3_mongodb_node_1.IdentifiableMongoDbPersistence {
     constructor(collection) {
         super(collection, LoggingMongoDbSchema_1.LoggingMongoDbSchema());
         this._maxPageSize = 1000;
     }
     composeFilter(filter) {
-        filter = filter || new pip_services_commons_node_1.FilterParams();
+        filter = filter || new pip_services3_commons_node_1.FilterParams();
         let criteria = [];
         let search = filter.getAsNullableString("search");
         if (search != null) {
@@ -41,7 +41,7 @@ class LoggingMongoDbPersistence extends pip_services_mongodb_node_1.Identifiable
         if (source != null)
             criteria.push({ source: source });
         let errorsOnly = filter.getAsBooleanWithDefault("errors_only", false);
-        let errorLevel = pip_services_components_node_1.LogLevel.Error;
+        let errorLevel = pip_services3_components_node_1.LogLevel.Error;
         if (errorsOnly)
             criteria.push({ level: errorLevel });
         return criteria.length > 0 ? { $and: criteria } : null;
@@ -84,7 +84,7 @@ class LoggingMongoDbPersistence extends pip_services_mongodb_node_1.Identifiable
             callback(null);
     }
     deleteExpired(correlationId, expireTime, callback) {
-        this.deleteByFilter(correlationId, pip_services_commons_node_1.FilterParams.fromTuples("to_time", expireTime), callback);
+        this.deleteByFilter(correlationId, pip_services3_commons_node_1.FilterParams.fromTuples("to_time", expireTime), callback);
     }
 }
 exports.LoggingMongoDbPersistence = LoggingMongoDbPersistence;

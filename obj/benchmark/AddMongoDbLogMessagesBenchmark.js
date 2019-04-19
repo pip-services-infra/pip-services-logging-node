@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let async = require('async');
 const pip_benchmark_node_1 = require("pip-benchmark-node");
-const pip_services_commons_node_1 = require("pip-services-commons-node");
-const pip_services_commons_node_2 = require("pip-services-commons-node");
-const pip_services_commons_node_3 = require("pip-services-commons-node");
-const pip_services_commons_node_4 = require("pip-services-commons-node");
-const pip_services_commons_node_5 = require("pip-services-commons-node");
+const pip_services3_commons_node_1 = require("pip-services3-commons-node");
+const pip_services3_commons_node_2 = require("pip-services3-commons-node");
+const pip_services3_commons_node_3 = require("pip-services3-commons-node");
+const pip_services3_commons_node_4 = require("pip-services3-commons-node");
+const pip_services3_commons_node_5 = require("pip-services3-commons-node");
 const LoggingMessagesMongoDbPersistence_1 = require("../src/persistence/LoggingMessagesMongoDbPersistence");
 const LoggingController_1 = require("../src/logic/LoggingController");
 class AddMongoDbLogMessagesBenchmark extends pip_benchmark_node_1.Benchmark {
@@ -16,7 +16,7 @@ class AddMongoDbLogMessagesBenchmark extends pip_benchmark_node_1.Benchmark {
     setUp(callback) {
         this._initialRecordNumber = this.context.parameters.InitialRecordNumber.getAsInteger();
         this._sourceQuantity = this.context.parameters.SourceQuantity.getAsInteger();
-        this._startTime = pip_services_commons_node_1.DateTimeConverter.toDateTime(this.context.parameters.StartTime.getAsString());
+        this._startTime = pip_services3_commons_node_1.DateTimeConverter.toDateTime(this.context.parameters.StartTime.getAsString());
         this._interval = this.context.parameters.Interval.getAsInteger();
         this._time = this._startTime;
         this._source = this.getRandomString(10);
@@ -25,11 +25,11 @@ class AddMongoDbLogMessagesBenchmark extends pip_benchmark_node_1.Benchmark {
         let mongoPort = this.context.parameters.MongoPort.getAsInteger();
         let mongoDb = this.context.parameters.MongoDb.getAsString();
         this._messagesPersistence = new LoggingMessagesMongoDbPersistence_1.LoggingMessagesMongoDbPersistence();
-        this._messagesPersistence.configure(pip_services_commons_node_2.ConfigParams.fromTuples('connection.uri', mongoUri, 'connection.host', mongoHost, 'connection.port', mongoPort, 'connection.database', mongoDb));
+        this._messagesPersistence.configure(pip_services3_commons_node_2.ConfigParams.fromTuples('connection.uri', mongoUri, 'connection.host', mongoHost, 'connection.port', mongoPort, 'connection.database', mongoDb));
         this._errorsPersistence = new LoggingMessagesMongoDbPersistence_1.LoggingMessagesMongoDbPersistence();
-        this._errorsPersistence.configure(pip_services_commons_node_2.ConfigParams.fromTuples('connection.uri', mongoUri, 'connection.host', mongoHost, 'connection.port', mongoPort, 'connection.database', mongoDb));
+        this._errorsPersistence.configure(pip_services3_commons_node_2.ConfigParams.fromTuples('connection.uri', mongoUri, 'connection.host', mongoHost, 'connection.port', mongoPort, 'connection.database', mongoDb));
         this._controller = new LoggingController_1.LoggingController();
-        let references = pip_services_commons_node_4.References.fromTuples(new pip_services_commons_node_3.Descriptor('pip-services-logging', 'persistence-messages', 'mongodb', 'default', '1.0'), this._messagesPersistence, new pip_services_commons_node_3.Descriptor('pip-services-logging', 'persistence-errors', 'mongodb', 'default', '1.0'), this._errorsPersistence, new pip_services_commons_node_3.Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), this._controller);
+        let references = pip_services3_commons_node_4.References.fromTuples(new pip_services3_commons_node_3.Descriptor('pip-services-logging', 'persistence-messages', 'mongodb', 'default', '1.0'), this._messagesPersistence, new pip_services3_commons_node_3.Descriptor('pip-services-logging', 'persistence-errors', 'mongodb', 'default', '1.0'), this._errorsPersistence, new pip_services3_commons_node_3.Descriptor('pip-services-logging', 'controller', 'default', 'default', '1.0'), this._controller);
         this._controller.setReferences(references);
         async.parallel([
             (callback) => {
@@ -80,7 +80,7 @@ class AddMongoDbLogMessagesBenchmark extends pip_benchmark_node_1.Benchmark {
         return Math.floor(Math.random() * 7);
     }
     getRandomErrorDescriptor() {
-        let errorDescription = new pip_services_commons_node_5.ErrorDescription();
+        let errorDescription = new pip_services3_commons_node_5.ErrorDescription();
         errorDescription.category = this.getRandomString(5);
         errorDescription.type = this.getRandomString(5);
         errorDescription.status = this.getRandomLogLevel();

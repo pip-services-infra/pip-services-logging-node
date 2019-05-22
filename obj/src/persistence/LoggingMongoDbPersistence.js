@@ -4,11 +4,11 @@ let _ = require('lodash');
 let async = require('async');
 const pip_services3_commons_node_1 = require("pip-services3-commons-node");
 const pip_services3_components_node_1 = require("pip-services3-components-node");
-const pip_services3_mongodb_node_1 = require("pip-services3-mongodb-node");
-const LoggingMongoDbSchema_1 = require("./LoggingMongoDbSchema");
-class LoggingMongoDbPersistence extends pip_services3_mongodb_node_1.IdentifiableMongoDbPersistence {
+const pip_services3_mongoose_node_1 = require("pip-services3-mongoose-node");
+const LoggingMongooseSchema_1 = require("./LoggingMongooseSchema");
+class LoggingMongoDbPersistence extends pip_services3_mongoose_node_1.IdentifiableMongoosePersistence {
     constructor(collection) {
-        super(collection, LoggingMongoDbSchema_1.LoggingMongoDbSchema());
+        super(collection, LoggingMongooseSchema_1.LoggingMongooseSchema());
         this._maxPageSize = 1000;
     }
     composeFilter(filter) {

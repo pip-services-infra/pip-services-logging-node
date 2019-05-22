@@ -1,10 +1,10 @@
 import { FilterParams } from 'pip-services3-commons-node';
 import { PagingParams } from 'pip-services3-commons-node';
 import { DataPage } from 'pip-services3-commons-node';
-import { IdentifiableMongoDbPersistence } from 'pip-services3-mongodb-node';
+import { IdentifiableMongoosePersistence } from 'pip-services3-mongoose-node';
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
-export declare abstract class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
+export declare abstract class LoggingMongoDbPersistence extends IdentifiableMongoosePersistence<LogMessageV1, string> implements ILoggingPersistence {
     protected abstract _collection: string;
     constructor(collection: string);
     protected composeFilter(filter: any): {

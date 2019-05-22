@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { LogLevel } from 'pip-services3-components-node';
 
-export let LoggingMongoDbSchema = function(collection?: string) {
+export let LoggingMongooseSchema = function(collection?: string) {
     collection = collection || 'logs';
 
     let ErrorDescriptionSchema = new Schema(

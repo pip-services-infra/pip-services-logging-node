@@ -18,6 +18,7 @@ class LoggingServiceFactory extends pip_services3_components_node_1.Factory {
         this.registerAsType(LoggingServiceFactory.HttpServiceDescriptor, LoggingHttpServiceV1_1.LoggingHttpServiceV1);
     }
 }
+exports.LoggingServiceFactory = LoggingServiceFactory;
 LoggingServiceFactory.Descriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "factory", "default", "default", "1.0");
 LoggingServiceFactory.LoggingMessagesMemoryPersistenceDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "persistence-messages", "memory", "*", "1.0");
 LoggingServiceFactory.LoggingErrorsMemoryPersistenceDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "persistence-errors", "memory", "*", "1.0");
@@ -25,5 +26,4 @@ LoggingServiceFactory.LoggingMessagesMongoDbPersistenceDescriptor = new pip_serv
 LoggingServiceFactory.LoggingErrorsMongoDbPersistenceDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "persistence-errors", "mongodb", "*", "1.0");
 LoggingServiceFactory.ControllerDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "controller", "default", "*", "1.0");
 LoggingServiceFactory.HttpServiceDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services-logging", "service", "http", "*", "1.0");
-exports.LoggingServiceFactory = LoggingServiceFactory;
 //# sourceMappingURL=LoggingServiceFactory.js.map

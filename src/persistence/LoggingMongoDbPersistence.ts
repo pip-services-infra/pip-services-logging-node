@@ -5,19 +5,15 @@ import { FilterParams } from 'pip-services3-commons-node';
 import { PagingParams } from 'pip-services3-commons-node';
 import { DataPage } from 'pip-services3-commons-node';
 import { LogLevel } from 'pip-services3-components-node';
-import { IdentifiableMongoosePersistence } from 'pip-services3-mongoose-node';
+import { IdentifiableMongoDbPersistence } from 'pip-services3-mongodb-node';
 
 import { LogMessageV1 } from '../data/version1/LogMessageV1';
 import { ILoggingPersistence } from './ILoggingPersistence';
-import { LoggingMongooseSchema } from './LoggingMongooseSchema';
-import { callbackify } from 'util';
 
-export abstract class LoggingMongoDbPersistence extends IdentifiableMongoosePersistence<LogMessageV1, string> implements ILoggingPersistence {
+export abstract class LoggingMongoDbPersistence extends IdentifiableMongoDbPersistence<LogMessageV1, string> implements ILoggingPersistence {
 
-    protected abstract _collection: string;
-
-    constructor(collection: string) {
-        super(collection, LoggingMongooseSchema());
+    constructor(collection?: string) {
+        super(collection);
 
         this._maxPageSize = 1000;
     }
@@ -93,7 +89,7 @@ export abstract class LoggingMongoDbPersistence extends IdentifiableMongoosePers
             return;
         }
 
-        let batch = this._model.collection.initializeUnorderedBulkOp();
+        let batch = this._collection.collection.initializeUnorderedBulkOp();
         //batch can be undefined if try to write log before connected to mongodb
 
         for (let item of messages) {

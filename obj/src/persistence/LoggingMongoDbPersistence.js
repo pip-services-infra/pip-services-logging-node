@@ -4,11 +4,10 @@ let _ = require('lodash');
 let async = require('async');
 const pip_services3_commons_node_1 = require("pip-services3-commons-node");
 const pip_services3_components_node_1 = require("pip-services3-components-node");
-const pip_services3_mongoose_node_1 = require("pip-services3-mongoose-node");
-const LoggingMongooseSchema_1 = require("./LoggingMongooseSchema");
-class LoggingMongoDbPersistence extends pip_services3_mongoose_node_1.IdentifiableMongoosePersistence {
+const pip_services3_mongodb_node_1 = require("pip-services3-mongodb-node");
+class LoggingMongoDbPersistence extends pip_services3_mongodb_node_1.IdentifiableMongoDbPersistence {
     constructor(collection) {
-        super(collection, LoggingMongooseSchema_1.LoggingMongooseSchema());
+        super(collection);
         this._maxPageSize = 1000;
     }
     composeFilter(filter) {
@@ -61,7 +60,7 @@ class LoggingMongoDbPersistence extends pip_services3_mongoose_node_1.Identifiab
                 callback(null);
             return;
         }
-        let batch = this._model.collection.initializeUnorderedBulkOp();
+        let batch = this._collection.collection.initializeUnorderedBulkOp();
         //batch can be undefined if try to write log before connected to mongodb
         for (let item of messages) {
             if (batch)
